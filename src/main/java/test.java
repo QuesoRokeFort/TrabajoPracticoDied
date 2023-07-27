@@ -15,7 +15,7 @@ import java.io.IOException;
 public class test {
     public static void createGraph() throws IOException {
 
-        File imgFile2 = new File("src/test/resources/graph2.png");
+        File imgFile2 = new File("src/test/resources/graph.png");
         imgFile2.createNewFile();
 
         Graph<String, DefaultEdge> directedGraph =
@@ -24,21 +24,8 @@ public class test {
         directedGraph.addVertex("b");
         directedGraph.addVertex("c");
         directedGraph.addVertex("d");
-        directedGraph.addVertex("e");
-        directedGraph.addVertex("f");
-        directedGraph.addVertex("g");
-        directedGraph.addVertex("h");
-        directedGraph.addVertex("i");
         directedGraph.addEdge("a", "b");
-        directedGraph.addEdge("b", "d");
-        directedGraph.addEdge("d", "c");
-        directedGraph.addEdge("c", "a");
-        directedGraph.addEdge("e", "d");
-        directedGraph.addEdge("e", "f");
-        directedGraph.addEdge("f", "g");
-        directedGraph.addEdge("g", "e");
-        directedGraph.addEdge("h", "e");
-        directedGraph.addEdge("i", "h");
+        directedGraph.addEdge("a", "c");
         givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist((DefaultDirectedGraph) directedGraph);
     }
     static void givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(DefaultDirectedGraph g) throws IOException {
@@ -50,7 +37,7 @@ public class test {
 
         BufferedImage image =
                 mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
-        File imgFile = new File("src/test/resources/graph2.png");
+        File imgFile = new File("src/test/resources/graph.png");
         ImageIO.write(image, "PNG", imgFile);
 
         assertTrue(imgFile.exists());
