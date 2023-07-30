@@ -35,8 +35,11 @@ public class Gestor {
     public int showMenu() {
         Scanner sc = new Scanner(System.in);
         System.out.println("1-añadir sucursal." +'\n'+
-                "2- mostrar sucursal." +'\n'+
-                "0- salir.");
+                "2- Mostrar sucursal." +'\n'+
+                "3- Editar Sucursal."+'\n'+
+                "4- Borrar sucursal."+'\n'+
+                "5- Busacr sucursal."+ '\n'+
+                "0- Salir.");
         return (int)sc.nextInt();
     }
 }
