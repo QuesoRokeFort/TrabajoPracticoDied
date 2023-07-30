@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class test {
+/*public class test {
     public static void createGraph() throws IOException {
 
         File imgFile2 = new File("src/test/resources/graph.png");
@@ -52,3 +52,4 @@ public class test {
         createGraph();
     }
 }
+*/
