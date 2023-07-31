@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 public class Swingestor {
     public void showSucursal(Sucursal s) {
         JFrame jframe = new JFrame("Sucursal: "+s.getNombre());
-        JPanel jpanel = new JPanel(); // agregamos todos los elementos a un panel.
-
+        JPanel jpanel = new JPanel();
+        // el panel es donde se ponen los elementos q luego cargas al frame
         JLabel labelEt1 = new JLabel("Id: "+s.getId());
         JLabel labelEt2 = new JLabel("Hora de apertura: "+s.getHoraApertura());
         JLabel labelEt3 = new JLabel("Hora de cierre: "+s.getHoraCierre());
@@ -28,6 +28,7 @@ public class Swingestor {
         jpanel.add(labelEt4);
         jpanel.add(txtTexto4);
         JButton boton1 = new JButton("UN BOTON ! ");
+        // funcion para q pasen cosas al tocar un boton
         boton1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -37,16 +38,15 @@ public class Swingestor {
                 s.setEstado(txtTexto4.getText().equals("")? s.getEstado():txtTexto4.getText().equals("abierto")?  true:false );
             }
         });
+        // agergas las cosas al frame
         jpanel.add(boton1);
-        jframe.add(jpanel); // lo agrega en el centro
+        jframe.add(jpanel);
         //jframe.setContentPane(jpanel);
         jframe.pack(); //SIN ESTE METODO NO se ve la ventana.
         jframe.setSize(400, 250);
+        // dispose on close sino el programa se queda ocupando ram o te cierra en programa entero
         jframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jframe.setVisible(true);
-    }
-    private JPanel crearpanelSucursal(Sucursal s){
-        return new JPanel();
     }
     public Swingestor() {
     }
