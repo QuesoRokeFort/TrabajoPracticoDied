@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Gestor {
     ArrayList<Sucursal> sucursales= new ArrayList<Sucursal>();
-
+    Swingestor swingestor =new Swingestor();
     public ArrayList<Sucursal> getSucursales() {
         return sucursales;
     }
@@ -41,5 +41,11 @@ public class Gestor {
                 "5- Busacr sucursal."+ '\n'+
                 "0- Salir.");
         return (int)sc.nextInt();
+    }
+
+    public void showSucursales() {
+        for (Sucursal s: sucursales){
+            swingestor.showSucursal(s);
+        }
     }
 }

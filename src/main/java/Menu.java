@@ -12,14 +12,14 @@ public class Menu {
             switch (caso) {
                 case 1:
                     gestor.addSucursales();
+
                     break;
                 case 2:
-                    for (Object s: gestor.sucursales.stream().map(s -> s.getNombre()).toArray()){
-                        System.out.println(s);
-                    }
+                    gestor.showSucursales();
                     break;
             }
         }
         System.out.println("saliste felicitute");
+        return;
     }
 }

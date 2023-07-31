@@ -1,9 +1,9 @@
 public class Sucursal {
-    String nombre;
-    int horaApertura;
-    int horaCierre;
-    Boolean estado;
-    int id;
+    private String nombre;
+    private int horaApertura;
+    private int horaCierre;
+    private Boolean estado;
+    private int id;
     public Sucursal() {
     }
 
