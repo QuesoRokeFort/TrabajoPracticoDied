@@ -4,10 +4,18 @@ public class Sucursal {
     private int horaCierre;
     private Boolean estado;
     private int id;
+
+
     public Sucursal() {
     }
-
-    public Sucursal(String nombre, int horaApertura, int horaCierre, Boolean estado) {
+    public boolean equals(Sucursal s){
+        if (s.getNombre().equals(this.getNombre()) && s.getEstado().equals(this.getEstado()) && s.getHoraApertura() == this.getHoraApertura() && s.getHoraCierre()== this.getHoraCierre()){
+            return true;
+        }
+        return false;
+    }
+    public Sucursal(String nombre, int horaApertura, int horaCierre, Boolean estado, int id) {
+        this.id = id;
         this.nombre = nombre;
         this.horaApertura = horaApertura;
         this.horaCierre = horaCierre;
