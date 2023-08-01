@@ -1,28 +1,24 @@
+import javax.swing.*;
 import java.lang.ref.Cleaner;
 
 public class Menu {
     public static void main(String[] args) {
-
+        JFrame jFrame= new JFrame("trabajo practico");
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Gestor gestor = new Gestor();
         int caso = 1;
         while (caso != 0) {
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-            caso = gestor.showMenu();
+            caso = gestor.showMenu(jFrame);
             switch (caso) {
                 case 1:
-                    // fijate si podes hacer lo mismo q hice con el show sucursal en un menu de swing para cargar,
-                    // al final termino siendo una pantalla de modicacion de datos y no de muestras pero anyways
-                    // despues acomodamos bien los nombre de las funciones y eso de momento hagamos el esqueleto
-                    gestor.addSucursales();
-
+                    gestor.addSucursales(jFrame);
                     break;
                 case 2:
-                    gestor.showSucursales();
+                    gestor.showSucursales(jFrame);
                     break;
             }
         }
         System.out.println("saliste felicitute");
-        return;
+        jFrame.dispose();
     }
 }
