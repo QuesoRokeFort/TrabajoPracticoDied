@@ -1,6 +1,8 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Swingestor {
@@ -152,43 +154,90 @@ public class Swingestor {
         jPanel.add(bt5);
         jPanel.add(bt0);
         actualizarFrame(jFrame,jPanel);
-        while(valor[0] == -1) {
+        CompletableFuture<Void> future= new CompletableFuture<>();
             bt1.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 1;
+                    future.complete(null);
                 }
             });
             bt2.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 2;
+                    future.complete(null);
                 }
             });
             bt3.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 3;
+                    future.complete(null);
                 }
             });
             bt4.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 4;
+                    future.complete(null);
                 }
             });
             bt5.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 5;
+                    future.complete(null);
                 }
             });
             bt0.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 0;
+                    future.complete(null);
                 }
             });
+        try {
+            future.get();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return valor[0];
+    }
+    public String menuBusqueda(JFrame jFrame, List<String> nombres){
+        JPanel jPanel=new JPanel();
+        final String[] valor = new String[1];
+        final int[] aux={0};
+
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        for (String s : nombres){
+            JLabel jLabel = new JLabel(s);
+            JButton bt = new JButton("modificar");
+            jPanel.add(jLabel);
+            jPanel.add(bt);
+            bt.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    valor[0] = s;
+                    future.complete(null);
+                }
+            });
+        }
+        JButton button =new JButton("cancelar");
+        jPanel.add(button);
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                valor[0]="";
+                future.complete(null);
+            }
+        });
+        actualizarFrame(jFrame,jPanel);
+
+        try {
+            future.get();
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
         return valor[0];
     }

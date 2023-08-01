@@ -16,6 +16,9 @@ public class Menu {
                 case 2:
                     gestor.showSucursales(jFrame);
                     break;
+                case 5:
+                    gestor.buscarSucursal(jFrame);
+                    break;
             }
         }
         System.out.println("saliste felicitute");
