@@ -34,9 +34,9 @@ public class Swingestor {
         jPanel.add(txtTexto3);
         jPanel.add(labelEt4);
         jPanel.add(txtTexto4);
-        JButton boton1 = new JButton("UN BOTON ! ");
+        JButton boton1 = new JButton("Agregar");
         jPanel.add(boton1);
-        JButton botonSalida = new JButton("cancelar");
+        JButton botonSalida = new JButton("Cancelar");
         jPanel.add(botonSalida);
         actualizarFrame(jFrame,jPanel);
         // funcion para q pasen cosas al tocar un boton
@@ -52,7 +52,6 @@ public class Swingestor {
                             actualizarFrame(jFrame, jPanel);
                             aux[0] = true;
                         }
-                        boton1.removeActionListener((ActionListener) e);
                     } else {
                         s.setNombre(txtTexto5.getText());
                         s.setHoraApertura(Integer.parseInt(txtTexto2.getText()));
@@ -99,7 +98,7 @@ public class Swingestor {
             jpanel.add(labelEt3);
             jpanel.add(labelEt4);
         }
-        JButton boton1 = new JButton("UN BOTON ! ");
+        JButton boton1 = new JButton("Volver");
         jpanel.add(boton1);
         actualizarFrame(jFrame, jpanel);
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -117,6 +116,7 @@ public class Swingestor {
     }
     public Sucursal modificarSucursal(JFrame jFrame,Sucursal s) {
         Sucursal sucursal= new Sucursal();
+        sucursal.setId(s.getId());
         JPanel jpanel = new JPanel();
         // el panel es donde se ponen los elementos q luego cargas al frame
         JLabel labelEt1 = new JLabel("Id: "+s.getId());
@@ -124,8 +124,6 @@ public class Swingestor {
         JLabel labelEt3 = new JLabel("Hora de cierre: "+s.getHoraCierre());
         JLabel labelEt4 = new JLabel("Estado: " + (s.getEstado()?"abierto" :"cerrado"));
         JLabel labelEt5 = new JLabel("Nombre: "+ s.getNombre());
-        JTextField txtTexto1 = new JTextField();
-        txtTexto1.setColumns(20);
         JTextField txtTexto2 = new JTextField();
         txtTexto2.setColumns(20);
         JTextField txtTexto3 = new JTextField();
@@ -137,25 +135,42 @@ public class Swingestor {
         jpanel.add(labelEt5);
         jpanel.add(txtTexto5);
         jpanel.add(labelEt1);
-        jpanel.add(txtTexto1);
         jpanel.add(labelEt2);
         jpanel.add(txtTexto2);
         jpanel.add(labelEt3);
         jpanel.add(txtTexto3);
         jpanel.add(labelEt4);
         jpanel.add(txtTexto4);
-        JButton boton1 = new JButton("UN BOTON ! ");
+        JButton boton1 = new JButton("Modificar");
         jpanel.add(boton1);
+        JButton atras = new JButton("Atras");
+        jpanel.add(atras);
+        JButton borrar = new JButton("BORRAR");
+        jpanel.add(borrar);
         actualizarFrame(jFrame, jpanel);
         CompletableFuture <Void> future =new CompletableFuture<>();
+        atras.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                future.complete(null);
+            }
+        });
+        borrar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sucursal.borrarSucursal();
+                future.complete(null);
+            }
+        });
         boton1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sucursal.setNombre(txtTexto5.getText().equals("")?s.getNombre():txtTexto5.getText());
-                sucursal.setId(txtTexto1.getText().equals("")? s.getId():Integer.parseInt(txtTexto1.getText()));
-                sucursal.setHoraApertura(txtTexto2.getText().equals("")?s.getHoraApertura():Integer.parseInt(txtTexto2.getText()));
-                sucursal.setHoraCierre(txtTexto3.getText().equals("")?s.getHoraCierre():Integer.parseInt(txtTexto3.getText()));
-                sucursal.setEstado(txtTexto4.getText().equals("")? s.getEstado():txtTexto4.getText().equals("abierto")?  true:false );
+                if(!(txtTexto5.getText().equals("") && txtTexto2.getText().equals("") && txtTexto3.getText().equals("") && txtTexto4.getText().equals(""))){
+                    sucursal.setNombre(txtTexto5.getText().equals("")?s.getNombre():txtTexto5.getText());
+                    sucursal.setHoraApertura(txtTexto2.getText().equals("")?s.getHoraApertura():Integer.parseInt(txtTexto2.getText()));
+                    sucursal.setHoraCierre(txtTexto3.getText().equals("")?s.getHoraCierre():Integer.parseInt(txtTexto3.getText()));
+                    sucursal.setEstado(txtTexto4.getText().equals("")? s.getEstado():txtTexto4.getText().equals("abierto")?  true:false );
+                }
                 future.complete(null);
             }
         });
@@ -173,15 +188,11 @@ public class Swingestor {
         JPanel jPanel = new JPanel();
         JButton bt1= new JButton("1-añadir sucursal.");
         JButton bt2= new JButton("2- Mostrar sucursal.");
-        JButton bt3= new JButton("3- Editar Sucursal.");
-        JButton bt4= new JButton("4- Borrar sucursal.");
-        JButton bt5= new JButton("5- Busacr sucursal.");
+        JButton bt3= new JButton("3- Buscar sucursal.");
         JButton bt0= new JButton("0- Salir.");
         jPanel.add(bt1);
         jPanel.add(bt2);
         jPanel.add(bt3);
-        jPanel.add(bt4);
-        jPanel.add(bt5);
         jPanel.add(bt0);
         actualizarFrame(jFrame,jPanel);
         CompletableFuture<Void> future= new CompletableFuture<>();
@@ -203,20 +214,6 @@ public class Swingestor {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     valor[0] = 3;
-                    future.complete(null);
-                }
-            });
-            bt4.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    valor[0] = 4;
-                    future.complete(null);
-                }
-            });
-            bt5.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    valor[0] = 5;
                     future.complete(null);
                 }
             });

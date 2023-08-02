@@ -73,8 +73,21 @@ public class Gestor {
     }
     public void showMSucursal(JFrame jFrame,Sucursal s) {
             Sucursal sucursal=swingestor.modificarSucursal(jFrame,s);
-            if(!sucursal.equals(s)) {
-                try (Connection conn = Conexion.getInstance().getConn()) {
+            if(! (sucursal.getNombre() == null)) {
+                actualizarSucursal(sucursal, s);
+                actualizarSucursales();
+            }
+    }
+    public void actualizarSucursal(Sucursal sucursal, Sucursal s){
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            if (sucursal.getFlagBorrado()) {
+                System.out.println(sucursal.getId());
+                String query = "DELETE FROM Sucursal where id = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setInt(1,sucursal.getId());
+                stmt.executeUpdate();
+            } else {
+                if (!sucursal.equals(s)) {
                     String query = "UPDATE Sucursal SET Nombre = ?, HoraApertura = ?,HoraCierre = ?,Estado = ? WHERE Id = ?";
                     PreparedStatement stmt = conn.prepareStatement(query);
                     stmt.setString(1, sucursal.getNombre());
@@ -83,13 +96,12 @@ public class Gestor {
                     stmt.setBoolean(4, sucursal.getEstado());
                     stmt.setInt(5, sucursal.getId());
                     stmt.executeUpdate();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
-            actualizarSucursales();
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
-
     public void showSucursales(JFrame jFrame) {
             swingestor.showSucursal(jFrame,sucursales);
     }

@@ -4,6 +4,7 @@ public class Sucursal {
     private int horaCierre;
     private Boolean estado;
     private int id;
+    private boolean flagBorrado=false;
 
 
     public Sucursal() {
@@ -60,5 +61,12 @@ public class Sucursal {
 
     public void setEstado(Boolean estado) {
         this.estado = estado;
+    }
+
+    public boolean getFlagBorrado() {
+        return flagBorrado;
+    }
+    public void borrarSucursal(){
+        flagBorrado=true;
     }
 }

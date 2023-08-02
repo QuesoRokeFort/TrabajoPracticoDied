@@ -20,7 +20,7 @@ public class Menu {
                 case 2:
                     gestor.showSucursales(jFrame);
                     break;
-                case 5:
+                case 3:
                     gestor.buscarSucursal(jFrame);
                     break;
             }
