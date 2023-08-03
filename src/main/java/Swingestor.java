@@ -12,40 +12,40 @@ public class Swingestor {
         s.setId(id);
         JPanel jPanel = new JPanel();
         // el panel es donde se ponen los elementos q luego cargas al frame
-        JLabel labelEt1 = new JLabel("id: "+id);
-        JLabel labelEt2 = new JLabel("introduzca hora de apertura:(4 digitos sin ':' , ej: 1400):");
-        JLabel labelEt3 = new JLabel("introduzca hora de cierre:(4 digitos sin ':' , ej: 2200):");
-        JLabel labelEt4 = new JLabel("introduzca estado(cerrado ,abierto):");
-        JLabel labelEt5 = new JLabel("introduzca el nombre:");
-        JTextField txtTexto2 = new JTextField();
-        txtTexto2.setColumns(20);
-        JTextField txtTexto3 = new JTextField();
-        txtTexto3.setColumns(20);
-        JTextField txtTexto4 = new JTextField();
-        txtTexto4.setColumns(20);
-        JTextField txtTexto5 = new JTextField();
-        txtTexto5.setColumns(20);
-        jPanel.add(labelEt5);
-        jPanel.add(txtTexto5);
-        jPanel.add(labelEt1);
-        jPanel.add(labelEt2);
-        jPanel.add(txtTexto2);
-        jPanel.add(labelEt3);
-        jPanel.add(txtTexto3);
-        jPanel.add(labelEt4);
-        jPanel.add(txtTexto4);
-        JButton boton1 = new JButton("Agregar");
-        jPanel.add(boton1);
-        JButton botonSalida = new JButton("Cancelar");
-        jPanel.add(botonSalida);
+        JLabel labelId = new JLabel("id: "+id);
+        JLabel labelHoraApertura = new JLabel("introduzca hora de apertura:(4 digitos sin ':' , ej: 1400):");
+        JLabel labelHoraCierre = new JLabel("introduzca hora de cierre:(4 digitos sin ':' , ej: 2200):");
+        JLabel labelEstado = new JLabel("introduzca estado(cerrado ,abierto):");
+        JLabel labelNombre = new JLabel("introduzca el nombre:");
+        JTextField txtHoraApertura = new JTextField();
+        txtHoraApertura.setColumns(20);
+        JTextField txtHoraCierre = new JTextField();
+        txtHoraCierre.setColumns(20);
+        JTextField txtEstado = new JTextField();
+        txtEstado.setColumns(20);
+        JTextField txtNombre = new JTextField();
+        txtNombre.setColumns(20);
+        jPanel.add(labelNombre);
+        jPanel.add(txtNombre);
+        jPanel.add(labelId);
+        jPanel.add(labelHoraApertura);
+        jPanel.add(txtHoraApertura);
+        jPanel.add(labelHoraCierre);
+        jPanel.add(txtHoraCierre);
+        jPanel.add(labelEstado);
+        jPanel.add(txtEstado);
+        JButton agregar = new JButton("Agregar");
+        jPanel.add(agregar);
+        JButton cancelar = new JButton("Cancelar");
+        jPanel.add(cancelar);
         actualizarFrame(jFrame,jPanel);
         // funcion para q pasen cosas al tocar un boton
         final boolean[] aux = {false};
         CompletableFuture<Void> future =new CompletableFuture<>();
-            boton1.addActionListener(new ActionListener() {
+            agregar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (txtTexto5.getText().equals("") || txtTexto2.getText().equals("") || txtTexto3.getText().equals("") || txtTexto4.getText().equals("")) {
+                    if (txtNombre.getText().equals("") || txtHoraApertura.getText().equals("") || txtHoraCierre.getText().equals("") || txtEstado.getText().equals("")) {
                         if (!aux[0]) {
                             JLabel aviso = new JLabel("ingrese los datos");
                             jPanel.add(aviso);
@@ -53,18 +53,17 @@ public class Swingestor {
                             aux[0] = true;
                         }
                     } else {
-                        s.setNombre(txtTexto5.getText());
-                        s.setHoraApertura(Integer.parseInt(txtTexto2.getText()));
-                        s.setHoraCierre(Integer.parseInt(txtTexto3.getText()));
-                        s.setEstado(txtTexto4.getText().equals("abierto") ? true : false);
+                        s.setNombre(txtNombre.getText());
+                        s.setHoraApertura(Integer.parseInt(txtHoraApertura.getText()));
+                        s.setHoraCierre(Integer.parseInt(txtHoraCierre.getText()));
+                        s.setEstado(txtEstado.getText().equals("abierto") ? true : false);
                         future.complete(null);
                     }
                 }
             });
-            botonSalida.addActionListener(new ActionListener() {
+            cancelar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    s.setNombre("");
                     future.complete(null);
                 }
             });
@@ -83,20 +82,20 @@ public class Swingestor {
         jFrame.setSize(400, 300);
         jFrame.setVisible(true);
     }
-    public void showSucursal(JFrame jFrame, ArrayList<Sucursal> sucusal) {
+    public void showSucursal(JFrame jFrame, ArrayList<Sucursal> sucusales) {
         JPanel jpanel = new JPanel();
-        for (Sucursal s : sucusal) {
+        for (Sucursal s : sucusales) {  
             // el panel es donde se ponen los elementos q luego cargas al frame
-            JLabel labelEt1 = new JLabel("Id: " + s.getId());
-            JLabel labelEt2 = new JLabel("Hora de apertura: " + s.getHoraApertura());
-            JLabel labelEt3 = new JLabel("Hora de cierre: " + s.getHoraCierre());
-            JLabel labelEt4 = new JLabel("Estado: " + (s.getEstado() ? "abierto" : "cerrado"));
-            JLabel labelEt5 = new JLabel("Nombre: " + s.getNombre());
-            jpanel.add(labelEt5);
-            jpanel.add(labelEt1);
-            jpanel.add(labelEt2);
-            jpanel.add(labelEt3);
-            jpanel.add(labelEt4);
+            JLabel labelId = new JLabel("Id: " + s.getId());
+            JLabel labelHoraApertura = new JLabel("Hora de apertura: " + s.getHoraApertura());
+            JLabel labelHoraCierre = new JLabel("Hora de cierre: " + s.getHoraCierre());
+            JLabel labelEstado = new JLabel("Estado: " + (s.getEstado() ? "abierto" : "cerrado"));
+            JLabel labelNombre = new JLabel("Nombre: " + s.getNombre());
+            jpanel.add(labelNombre);
+            jpanel.add(labelId);
+            jpanel.add(labelHoraApertura);
+            jpanel.add(labelHoraCierre);
+            jpanel.add(labelEstado);
         }
         JButton boton1 = new JButton("Volver");
         jpanel.add(boton1);
@@ -158,6 +157,7 @@ public class Swingestor {
         borrar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                sucursal.setNombre(txtTexto5.getText().equals("")?s.getNombre():txtTexto5.getText());
                 sucursal.borrarSucursal();
                 future.complete(null);
             }

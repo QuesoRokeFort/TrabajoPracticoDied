@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class Gestor {
     ArrayList<Sucursal> sucursales= new ArrayList<Sucursal>();
@@ -69,10 +68,11 @@ public class Gestor {
                 .filter(s -> s.getNombre().equals(nombre))
                 .findFirst();
         Sucursal sucursal = sucursalEncontrada.orElse(null);
-        if (!nombre.equals("")) showMSucursal(jFrame,sucursal);
+        if (!nombre.equals("")) showModificarSucursal(jFrame,sucursal);
     }
-    public void showMSucursal(JFrame jFrame,Sucursal s) {
+    private void showModificarSucursal(JFrame jFrame, Sucursal s) {
             Sucursal sucursal=swingestor.modificarSucursal(jFrame,s);
+            System.out.println(sucursal.getNombre());
             if(! (sucursal.getNombre() == null)) {
                 actualizarSucursal(sucursal, s);
                 actualizarSucursales();
