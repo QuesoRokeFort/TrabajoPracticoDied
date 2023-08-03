@@ -1,11 +1,11 @@
 import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class Gestor {
     ArrayList<Camino> caminos = new ArrayList<Camino>();
-    Swingestor swingestor =new Swingestor();
+    Swingestor swingestor = new Swingestor();
+    int contadorSucursales;
     /*public void actualizarSucursales(){
             ArrayList<Sucursal> listaSucursales = new ArrayList<>();
 
@@ -27,19 +27,16 @@ public class Gestor {
             }
             this.sucursales=listaSucursales;
     }*/
+    public Gestor() {
+        contadorSucursales = getMax("id","sucursal");
+    }
 
-    public void addSucursales(JFrame jFrame) {
-            try (Connection conn = Conexion.getInstance().getConn()) {
-                int id=0;
-                String queryMayorId = "select MAX(id) from sucursal";
-                PreparedStatement preparedStatementid = conn.prepareStatement(queryMayorId);
-                ResultSet resultSet = preparedStatementid.executeQuery();
-                if (resultSet.next()) {
-                    id = resultSet.getInt(1)+1; // 1 is the column index for the first column (MAX(id))
-                }
-                Sucursal nuevaSucursal=swingestor.addSucursal(jFrame, id);
-                if(nuevaSucursal.isModificada()) {
-                    nuevaSucursal.Modificada();
+    public void agregarSucursal(JFrame jFrame) {
+        Sucursal nuevaSucursal = swingestor.addSucursal(jFrame, contadorSucursales + 1);
+
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            if(nuevaSucursal.isModificada()) {
+                nuevaSucursal.Modificada();
                 String query = "INSERT INTO " + "Sucursal" + " (Nombre, Id, HoraApertura, HoraCierre, Estado) VALUES(?,?,?,?,?)";
                 PreparedStatement preparedStatement = conn.prepareStatement(query);
                 preparedStatement.setString(1, nuevaSucursal.getNombre());
@@ -48,15 +45,28 @@ public class Gestor {
                 preparedStatement.setInt(4, nuevaSucursal.getHoraCierre());
                 preparedStatement.setBoolean(5, nuevaSucursal.getEstado());
                 preparedStatement.executeUpdate();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+                contadorSucursales++;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    public Gestor() {
     }
-
+    private int getMax(String nombreColumna, String tabla) {
+        int max = 0;
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            max = 0;
+            String queryMayorId = "select MAX(" + nombreColumna + ") from " + tabla;
+            PreparedStatement preparedStatementid = conn.prepareStatement(queryMayorId);
+            ResultSet resultSet = preparedStatementid.executeQuery();
+            if (resultSet.next()) {
+                max = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return max;
+    }
     public int showMenu(JFrame jFrame) {
         return swingestor.swingMenu(jFrame);
     }
@@ -90,7 +100,7 @@ public class Gestor {
                 borrarSucursal(s);
             }else{
                 if (s.isModificada()) {
-                    actualizarSucursal(s);
+                    modificarSucursal(s);
                 }
             }
     }
@@ -104,7 +114,7 @@ public class Gestor {
                 throw new RuntimeException(e);
         }
     }
-    public void actualizarSucursal(Sucursal s){
+    public void modificarSucursal(Sucursal s){
         s.Modificada();
         try (Connection conn = Conexion.getInstance().getConn()) {
              String query = "UPDATE Sucursal SET Nombre = ?, HoraApertura = ?,HoraCierre = ?,Estado = ? WHERE Id = ?";
