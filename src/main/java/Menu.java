@@ -13,7 +13,7 @@ public class Menu {
                     gestor.agregarSucursal(jFrame);
                     break;
                 case 2:
-                    gestor.showSucursales(jFrame);
+                    gestor.listarSucursales(jFrame);
                     break;
                 case 3:
                     gestor.buscarSucursal(jFrame);
