@@ -2,7 +2,7 @@ public class Sucursal {
     private String nombre;
     private int horaApertura;
     private int horaCierre;
-    private Boolean estado;
+    private Estado estado;
     private int id;
     private boolean flagBorrado=false;
     private boolean modificada=false;
@@ -15,7 +15,7 @@ public class Sucursal {
         }
         return false;
     }
-    public Sucursal(int id, int horaApertura, int horaCierre, Boolean estado, String nombre) {
+    public Sucursal(int id, int horaApertura, int horaCierre, Estado estado, String nombre) {
         this.id = id;
         this.nombre = nombre;
         this.horaApertura = horaApertura;
@@ -63,11 +63,11 @@ public class Sucursal {
         this.horaCierre = horaCierre;
     }
 
-    public Boolean getEstado() {
+    public Estado getEstado() {
         return estado;
     }
 
-    public void setEstado(Boolean estado) {
+    public void setEstado(Estado estado) {
         this.estado = estado;
     }
 

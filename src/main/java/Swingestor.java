@@ -58,7 +58,7 @@ public class Swingestor {
                         s.setNombre(txtNombre.getText());
                         s.setHoraApertura(Integer.parseInt(txtHoraApertura.getText()));
                         s.setHoraCierre(Integer.parseInt(txtHoraCierre.getText()));
-                        s.setEstado(txtEstado.getText().equals("abierto") ? true : false);
+                        s.setEstado(txtEstado.getText().equals("abierto") ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
                         future.complete(null);
                     }
                 }
@@ -122,7 +122,7 @@ public class Swingestor {
         JLabel labelId = new JLabel("Id: "+s.getId());
         JLabel labelHoraApertura = new JLabel("Hora de apertura: "+s.getHoraApertura());
         JLabel labelHoraCierre = new JLabel("Hora de cierre: "+s.getHoraCierre());
-        JLabel labelEstado = new JLabel("Estado: " + (s.getEstado()?"abierto" :"cerrado"));
+        JLabel labelEstado = new JLabel("Estado: " + (s.getEstado().equals(Estado.OPERATIVA)?"abierto" :"cerrado"));
         JLabel labelNombre = new JLabel("Nombre: "+ s.getNombre());
         JTextField txtHoraApertura = new JTextField();
         txtHoraApertura.setColumns(20);
@@ -170,7 +170,7 @@ public class Swingestor {
                     if(!txtNombre.getText().equals("")) s.setNombre(txtNombre.getText());
                     if(!txtHoraApertura.getText().equals("")) s.setHoraApertura(Integer.parseInt(txtHoraApertura.getText()));
                     if(!txtHoraCierre.getText().equals("")) s.setHoraCierre(Integer.parseInt(txtHoraCierre.getText()));
-                    if(!txtEstado.getText().equals("")) s.setEstado(txtEstado.getText().equals("abierto")?  true:false);
+                    if(!txtEstado.getText().equals("")) s.setEstado(txtEstado.getText().equals("abierto")?  Estado.OPERATIVA:Estado.NO_OPERATIVA);
                 }
                 future.complete(null);
             }
