@@ -5,7 +5,7 @@ public class Sucursal {
     private Boolean estado;
     private int id;
     private boolean flagBorrado=false;
-
+    private boolean modificada=false;
 
     public Sucursal() {
     }
@@ -15,12 +15,20 @@ public class Sucursal {
         }
         return false;
     }
-    public Sucursal(String nombre, int horaApertura, int horaCierre, Boolean estado, int id) {
+    public Sucursal(int id, int horaApertura, int horaCierre, Boolean estado, String nombre) {
         this.id = id;
         this.nombre = nombre;
         this.horaApertura = horaApertura;
         this.horaCierre = horaCierre;
         this.estado = estado;
+    }
+
+    public boolean isModificada() {
+        return modificada;
+    }
+
+    public void Modificada() {
+        this.modificada = !this.modificada;
     }
 
     public int getId() {

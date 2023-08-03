@@ -9,7 +9,6 @@ public class Menu {
         JFrame jFrame= new JFrame("trabajo practico");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Gestor gestor = new Gestor();
-        gestor.actualizarSucursales();
         int caso = 1;
         while (caso != 0) {
             caso = gestor.showMenu(jFrame);
@@ -25,7 +24,6 @@ public class Menu {
                     break;
             }
         }
-        System.out.println("saliste felicitute");
         jFrame.dispose();
     }
 }
