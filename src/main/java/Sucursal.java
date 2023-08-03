@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class Sucursal {
     private String nombre;
     private int horaApertura;
@@ -6,7 +10,27 @@ public class Sucursal {
     private int id;
     private boolean flagBorrado=false;
     private boolean modificada=false;
-
+    public List<String> getListaColumnas(){
+        List<String> columnas=new ArrayList<>();
+        columnas.add("id");
+        columnas.add("nombre");
+        columnas.add("horaApertura");
+        columnas.add("horaCierre");
+        columnas.add("estado");
+        return columnas;
+    }
+    public List<Object> getListaValores(){
+        List<Object> valores = new ArrayList<>();
+        valores.add(this.id);
+        valores.add(this.nombre);
+        valores.add(this.horaApertura);
+        valores.add(this.horaCierre);
+        valores.add(this.estado);
+        return valores;
+    }
+    public int elementos() {
+        return 5;
+    }
     public Sucursal() {
     }
     public boolean equals(Sucursal s){

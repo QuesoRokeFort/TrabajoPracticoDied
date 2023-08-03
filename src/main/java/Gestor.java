@@ -28,25 +28,7 @@ public class Gestor {
             this.sucursales=listaSucursales;
     }*/
     public Gestor() {
-        contadorSucursales = getLastValue("id","sucursal");
-    }
-    private int getLastValue(String nombreColumna, String tabla) {
-        int max = 0;
-        try (Connection conn = Conexion.getInstance().getConn()) {
-            max = 0;
-            String queryMayorId = "select MAX(" + nombreColumna + ") from " + tabla;
-            PreparedStatement preparedStatementid = conn.prepareStatement(queryMayorId);
-            ResultSet resultSet = preparedStatementid.executeQuery();
-            if (resultSet.next()) {
-                max = resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return max;
-    }
-    public int showMenu(JFrame jFrame) {
-        return swingestor.swingMenu(jFrame);
+        contadorSucursales = getMax("id","sucursal");
     }
 
     public void agregarSucursal(JFrame jFrame) {
@@ -70,36 +52,29 @@ public class Gestor {
         }
 
     }
-    public void borrarSucursal(Sucursal s){
+    private int getMax(String nombreColumna, String tabla) {
+        int max = 0;
         try (Connection conn = Conexion.getInstance().getConn()) {
-            String query = "DELETE FROM Sucursal where id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1,s.getId());
-            stmt.executeUpdate();
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
+            max = 0;
+            String queryMayorId = "select MAX(" + nombreColumna + ") from " + tabla;
+            PreparedStatement preparedStatementid = conn.prepareStatement(queryMayorId);
+            ResultSet resultSet = preparedStatementid.executeQuery();
+            if (resultSet.next()) {
+                max = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return max;
     }
-    public void modificarSucursal(Sucursal s){
-        s.Modificada();
-        try (Connection conn = Conexion.getInstance().getConn()) {
-            String query = "UPDATE Sucursal SET Nombre = ?, HoraApertura = ?,HoraCierre = ?,Estado = ? WHERE Id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, s.getNombre());
-            stmt.setInt(2, s.getHoraApertura());
-            stmt.setInt(3, s.getHoraCierre());
-            stmt.setBoolean(4, s.getEstado());
-            stmt.setInt(5, s.getId());
-            stmt.executeUpdate();
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public int showMenu(JFrame jFrame) {
+        return swingestor.swingMenu(jFrame);
     }
     public void buscarSucursal(JFrame jFrame){
         int idBusqueda;
-        idBusqueda = swingestor.menuBusqueda(jFrame);
+
+        idBusqueda=swingestor.menuBusqueda(jFrame);
         Sucursal sucursal= new Sucursal();
-        //refactorizar con funcion lucio
         try (Connection conn = Conexion.getInstance().getConn()){
              String query = "SELECT * FROM Sucursal where id = ?";
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -117,31 +92,44 @@ public class Gestor {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        if (idBusqueda != 0) {
-            swingestor.modificarSucursal(jFrame, sucursal);
-            if (sucursal.getFlagBorrado()) {
-                borrarSucursal(sucursal);
-            } else {
-                if (sucursal.isModificada()) {
-                    modificarSucursal(sucursal);
+        if (idBusqueda != 0) showModificarSucursal(jFrame,sucursal);
+    }
+    private void showModificarSucursal(JFrame jFrame, Sucursal s) {
+            swingestor.modificarSucursal(jFrame,s);
+            if(s.getFlagBorrado()) {
+                borrarSucursal(s);
+            }else{
+                if (s.isModificada()) {
+                    modificarSucursal(s);
                 }
             }
+    }
+    public void borrarSucursal(Sucursal s){
+        try (Connection conn = Conexion.getInstance().getConn()) {
+                String query = "DELETE FROM Sucursal where id = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setInt(1,s.getId());
+                stmt.executeUpdate();
+            }catch (SQLException e) {
+                throw new RuntimeException(e);
         }
     }
-    public void listarSucursales(JFrame jFrame) {
+    public void modificarSucursal(Sucursal s){
+        s.Modificada();
+        try (Connection conn = Conexion.getInstance().getConn()) {
+             String query = "UPDATE Sucursal SET Nombre = ?, HoraApertura = ?,HoraCierre = ?,Estado = ? WHERE Id = ?";
+             PreparedStatement stmt = conn.prepareStatement(query);
+             stmt.setString(1, s.getNombre());
+             stmt.setInt(2, s.getHoraApertura());
+             stmt.setInt(3, s.getHoraCierre());
+             stmt.setBoolean(4, s.getEstado());
+             stmt.setInt(5, s.getId());
+             stmt.executeUpdate();
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void showSucursales(JFrame jFrame) {
             swingestor.listarSucursales(jFrame);
-    }
-
-    public void agregarCamino(){
-        Camino nuevoCamino = swingestor.addSucursal(jFrame, contadorSucursales + 1);
-
-
-    }
-    public void borrarCamino(){
-
-    }
-    public void modificarCamino(){
-
     }
 }
