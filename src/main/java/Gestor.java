@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class Gestor {
-    ArrayList<Sucursal> sucursales= new ArrayList<Sucursal>();
+    ArrayList<Sucursal> sucursales = new ArrayList<Sucursal>();
+    ArrayList<Camino> caminos = new ArrayList<Camino>();
     Swingestor swingestor =new Swingestor();
     public ArrayList<Sucursal> getSucursales() {
         return sucursales;
@@ -46,7 +47,7 @@ public class Gestor {
                 preparedStatement.setInt(3, s.getHoraApertura());
                 preparedStatement.setInt(4, s.getHoraCierre());
                 preparedStatement.setBoolean(5, s.getEstado());
-                int filasInsertadas = preparedStatement.executeUpdate();
+                preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
