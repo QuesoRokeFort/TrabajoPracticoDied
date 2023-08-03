@@ -1,8 +1,4 @@
 import javax.swing.*;
-import java.lang.ref.Cleaner;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class Menu {
     public static void main(String[] args)  {
@@ -14,7 +10,7 @@ public class Menu {
             caso = gestor.showMenu(jFrame);
             switch (caso) {
                 case 1:
-                    gestor.addSucursales(jFrame);
+                    gestor.agregarSucursal(jFrame);
                     break;
                 case 2:
                     gestor.showSucursales(jFrame);
