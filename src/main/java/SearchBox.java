@@ -37,7 +37,7 @@ public class SearchBox {
             new Gestor().borrarSucursal(new Sucursal((int)result.getValueAt(selectedRow, 0),
                     (int)result.getValueAt(selectedRow, 1),
                     (int)result.getValueAt(selectedRow, 2),
-                    (boolean)result.getValueAt(selectedRow, 3),
+                    (boolean)result.getValueAt(selectedRow, 3)?Estado.OPERATIVA:Estado.NO_OPERATIVA,
                     (String)result.getValueAt(selectedRow, 4)
                     ));
             future.complete(null);
