@@ -8,7 +8,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 public class Swingestor {
     JPanel jPanel=new JPanel();
-    public Sucursal addSucursal(JFrame jFrame,int id){
+    JFrame jFrame;
+
+    public void setjFrame(JFrame jFrame) {
+        this.jFrame = jFrame;
+    }
+
+    public Sucursal addSucursal(int id){
+        System.out.println("here");
         Sucursal s= new Sucursal();
         s.setId(id);
         JPanel jPanel = new JPanel();
@@ -39,8 +46,8 @@ public class Swingestor {
         jPanel.add(agregar);
         JButton cancelar = new JButton("Cancelar");
         jPanel.add(cancelar);
-        actualizarFrame(jFrame,jPanel);
-        // funcion para q pasen cosas al tocar un boton
+        actualizarFrame(jPanel);
+        System.out.println("here");
         final boolean[] aux = {false};
         CompletableFuture<Void> future =new CompletableFuture<>();
             agregar.addActionListener(new ActionListener() {
@@ -50,7 +57,7 @@ public class Swingestor {
                         if (!aux[0]) {
                             JLabel aviso = new JLabel("ingrese los datos");
                             jPanel.add(aviso);
-                            actualizarFrame(jFrame, jPanel);
+                            actualizarFrame(jPanel);
                             aux[0] = true;
                         }
                     } else {
@@ -69,6 +76,7 @@ public class Swingestor {
                     future.complete(null);
                 }
             });
+        System.out.println("here");
         try {
             future.get();
         }catch (Exception ex){
@@ -76,48 +84,15 @@ public class Swingestor {
         }
         return s;
     }
-    private void actualizarFrame(JFrame jFrame,JPanel jPanel){
+    public void actualizarFrame(JPanel jPanel){
         jFrame.getContentPane().removeAll();
         jFrame.revalidate();
         jFrame.repaint();
         jFrame.add(jPanel);
-        jFrame.setSize(400, 300);
+        jFrame.setSize(550, 600);
         jFrame.setVisible(true);
     }
-    public void listarSucursales(JFrame jFrame) {
-        JPanel jpanel = new JPanel();
-        SearchBox searchBox = new SearchBox();
-        searchBox.listar(jFrame);
-        /*for (Sucursal s : null) {
-            // el panel es donde se ponen los elementos q luego cargas al frame
-            JLabel labelId = new JLabel("Id: " + s.getId());
-            JLabel labelHoraApertura = new JLabel("Hora de apertura: " + s.getHoraApertura());
-            JLabel labelHoraCierre = new JLabel("Hora de cierre: " + s.getHoraCierre());
-            JLabel labelEstado = new JLabel("Estado: " + (s.getEstado() ? "abierto" : "cerrado"));
-            JLabel labelNombre = new JLabel("Nombre: " + s.getNombre());
-            jpanel.add(labelNombre);
-            jpanel.add(labelId);
-            jpanel.add(labelHoraApertura);
-            jpanel.add(labelHoraCierre);
-            jpanel.add(labelEstado);
-        }
-        JButton volver = new JButton("Volver");
-        jpanel.add(volver);
-        actualizarFrame(jFrame, jpanel);
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        volver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                future.complete(null);
-            }
-        });
-        try {
-            future.get();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
-    }
-    public void modificarSucursal(JFrame jFrame,Sucursal s) {
+    public void modificarSucursal(Sucursal s) {
         JPanel jpanel = new JPanel();
         JLabel labelId = new JLabel("Id: "+s.getId());
         JLabel labelHoraApertura = new JLabel("Hora de apertura: "+s.getHoraApertura());
@@ -145,20 +120,11 @@ public class Swingestor {
         jpanel.add(modificar);
         JButton atras = new JButton("Atras");
         jpanel.add(atras);
-        JButton borrar = new JButton("BORRAR");
-        jpanel.add(borrar);
-        actualizarFrame(jFrame, jpanel);
+        actualizarFrame(jpanel);
         CompletableFuture <Void> future =new CompletableFuture<>();
         atras.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                future.complete(null);
-            }
-        });
-        borrar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                s.borrarSucursal();
                 future.complete(null);
             }
         });
@@ -183,7 +149,40 @@ public class Swingestor {
     }
     public Swingestor() {
     }
-    public int swingMenu(JFrame jFrame){
+    public int swingMenuListaBotones(int cantidadOpciones, List<String>listaOpciones){
+        final int[] opcion = {-1};
+        JPanel jPanel = new JPanel();
+        CompletableFuture<Void> future= new CompletableFuture<>();
+        for (int i=1;i<cantidadOpciones+1;i++){
+            JButton bt= new JButton(i+"- "+listaOpciones.get(i));
+            jPanel.add(bt);
+            int finalI = i;
+            bt.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    opcion[0] = finalI;
+                    future.complete(null);
+                }
+            });
+        }
+        JButton bt0= new JButton("0- Salir.");
+        jPanel.add(bt0);
+        actualizarFrame(jPanel);
+        bt0.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                opcion[0] = 0;
+                future.complete(null);
+            }
+        });
+        try {
+            future.get();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return opcion[0];
+    }
+    /*public int swingMenu(JFrame jFrame){
         final int[] opcion = {-1};
         JPanel jPanel = new JPanel();
         JButton bt1= new JButton("1-añadir sucursal.");
@@ -230,11 +229,10 @@ public class Swingestor {
             ex.printStackTrace();
         }
         return opcion[0];
-    }
-    public int menuBusqueda(JFrame jFrame){
+    }*/
+    public int menuBusqueda(){
         SearchBox SearchBox = new SearchBox();
         int id = SearchBox.buscador(jFrame);
-        System.out.println(id);
         return id;
     }
 }
