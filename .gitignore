@@ -3,6 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/java/Conexion.java
+src/main/java/GestorTest.java
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
