@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Sucursal {
+public class Sucursal extends Persistente{
     private boolean flagBorrado=false;
     private boolean modificada=false;
     private static String nombreTabla = "sucursal";
     private static String primaryKey = "id";
-    private static final int CANTIDAD_COLUMNAS = 5;
+    private static int CANTIDAD_COLUMNAS = 5;
     private static ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "horaApertura", "horaCierre", "estado"));
     private int id;
     private String nombre;
