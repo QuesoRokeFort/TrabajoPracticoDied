@@ -1,11 +1,9 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Predicate;
+
 public class Swingestor {
     JPanel jPanel=new JPanel();
     JFrame jFrame;
@@ -61,7 +59,7 @@ public class Swingestor {
                             aux[0] = true;
                         }
                     } else {
-                        s.Modificada();
+                        s.isModificado();
                         s.setNombre(txtNombre.getText());
                         s.setHoraApertura(Integer.parseInt(txtHoraApertura.getText()));
                         s.setHoraCierre(Integer.parseInt(txtHoraCierre.getText()));
@@ -132,7 +130,7 @@ public class Swingestor {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!(txtNombre.getText().equals("") && txtHoraApertura.getText().equals("") && txtHoraCierre.getText().equals("") && txtEstado.getText().equals(""))){
-                    s.Modificada();
+                    s.isModificado();
                     if(!txtNombre.getText().equals("")) s.setNombre(txtNombre.getText());
                     if(!txtHoraApertura.getText().equals("")) s.setHoraApertura(Integer.parseInt(txtHoraApertura.getText()));
                     if(!txtHoraCierre.getText().equals("")) s.setHoraCierre(Integer.parseInt(txtHoraCierre.getText()));
@@ -149,7 +147,7 @@ public class Swingestor {
     }*/
     public Swingestor() {
     }
-    public int swingMenuListaBotones(int cantidadOpciones, List<String>listaOpciones){
+    public int swingMenuListaBotones(int cantidadOpciones, List<String> listaOpciones){
         final int[] opcion = {-1};
         JPanel jPanel = new JPanel();
         CompletableFuture<Void> future= new CompletableFuture<>();

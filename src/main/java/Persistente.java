@@ -24,4 +24,12 @@ public abstract class Persistente {
     public static int getCantidadDeColumnas() {
         return CANTIDAD_COLUMNAS;
     }
+    public boolean getFlagBorrado() {
+        return flagBorrado;
+    }
+    public void isModificado() {
+        this.modificada = true;
+    }
+
+
 }

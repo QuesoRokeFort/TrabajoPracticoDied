@@ -3,41 +3,26 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Producto extends Persistente {
+    private static final ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "descripcion", "precioUnitario", "pesoKg"));
+    private static final int CANTIDAD_COLUMNAS = columnas.size();
+    private static final String nombreTabla = "producto";
+    private static final String primaryKey = "id";
+    private boolean flagBorrado=false;
+    private boolean modificada=false;
+    int id;
+    String nombre;
+    String descripcion;
+    double precioUnitario;
+    double pesoKg;
 
-    private static String nombreTabla="producto";
-    private static String primaryKey = "id";
-    private boolean modificada = false;
-    private boolean flagBorrado = false;
-    public static String getNombreTabla() {
-        return nombreTabla;
+    public Producto() {
     }
-    public static String getPrimaryKey(){
-        return primaryKey;
-    }
-    public static List<String> getNombresColumnas(){
-        return columnas;
-    }
-    public static int getCantidadDeColumnas() {
-        return CANTIDAD_COLUMNAS;
-    }
-    private int id;
-    private String nombre;
-    private String descripcion;
-    private double precioUnitario;
-    private double pesoKg;
-    private static int CANTIDAD_COLUMNAS = 5;
-    private static ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "descripcion", "precioUnitario", "pesoKg"));
+
     @Override
     public List<Object> getValores() {
         List<Object> valores = new ArrayList<>();
-        valores.add(id);
-        valores.add(nombre);
-        valores.add(descripcion);
-        valores.add(precioUnitario);
-        valores.add(pesoKg);
-        return  valores;
-    }
-    public Producto() {
+        valores.add(this.id);
+        return valores;
     }
 
     public Producto(int id, String nombre, String descripcion, double precioUnitario, double pesoKg) {
