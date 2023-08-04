@@ -1,11 +1,13 @@
 import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 
 public class Gestor {
     ArrayList<Camino> caminos = new ArrayList<Camino>();
-    Swingestor swingestor = new Swingestor();
-    int contadorSucursales;
+    static Swingestor swingestor = new Swingestor();
+    static int contadorSucursales;
     /*public void actualizarSucursales(){
             ArrayList<Sucursal> listaSucursales = new ArrayList<>();
 
@@ -27,32 +29,10 @@ public class Gestor {
             }
             this.sucursales=listaSucursales;
     }*/
-    public Gestor() {
-        contadorSucursales = getMax("id","sucursal");
+    public static void inicializar() {
+        contadorSucursales = Gestor.getLastValue("id","sucursal");
     }
-
-    public void agregarSucursal(JFrame jFrame) {
-        Sucursal nuevaSucursal = swingestor.addSucursal(jFrame, contadorSucursales + 1);
-
-        try (Connection conn = Conexion.getInstance().getConn()) {
-            if(nuevaSucursal.isModificada()) {
-                nuevaSucursal.Modificada();
-                String query = "INSERT INTO " + "Sucursal" + " (Nombre, Id, HoraApertura, HoraCierre, Estado) VALUES(?,?,?,?,?)";
-                PreparedStatement preparedStatement = conn.prepareStatement(query);
-                preparedStatement.setString(1, nuevaSucursal.getNombre());
-                preparedStatement.setInt(2, nuevaSucursal.getId());
-                preparedStatement.setInt(3, nuevaSucursal.getHoraApertura());
-                preparedStatement.setInt(4, nuevaSucursal.getHoraCierre());
-                preparedStatement.setBoolean(5, nuevaSucursal.getEstado());
-                preparedStatement.executeUpdate();
-                contadorSucursales++;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
-    private int getMax(String nombreColumna, String tabla) {
+    private static int getLastValue(String nombreColumna, String tabla) {
         int max = 0;
         try (Connection conn = Conexion.getInstance().getConn()) {
             max = 0;
@@ -67,14 +47,33 @@ public class Gestor {
         }
         return max;
     }
-    public int showMenu(JFrame jFrame) {
+    public static int showMenu(JFrame jFrame) {
         return swingestor.swingMenu(jFrame);
     }
-    public void buscarSucursal(JFrame jFrame){
-        int idBusqueda;
 
-        idBusqueda=swingestor.menuBusqueda(jFrame);
+    public static void agregarSucursal(JFrame jFrame) {
+        Sucursal nuevaSucursal = swingestor.addSucursal(jFrame, contadorSucursales + 1);
+        Gestor.cargarEnTable(Sucursal.getNombreTabla(),Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), nuevaSucursal.getValores());
+        contadorSucursales++;
+    }
+    public static void borrarSucursal(Sucursal sucursal){
+        Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),sucursal.getId());
+    }
+    public static void borrarSucursal(int id_sucursal){
+        Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
+    }
+    public static void modificarSucursal(Sucursal sucursal){
+        sucursal.Modificada();
+        Gestor.actualizarEnTable(Sucursal.getNombreTabla(), Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores(), Sucursal.getPrimaryKey(), sucursal.getId());
+    }
+    public static void showSucursales(JFrame jFrame) {
+        swingestor.listarSucursales(jFrame);
+    }
+    public static void buscarSucursal(JFrame jFrame){
+        int idBusqueda;
+        idBusqueda = swingestor.menuBusqueda(jFrame);
         Sucursal sucursal= new Sucursal();
+        //refactorizar con funcion lucio
         try (Connection conn = Conexion.getInstance().getConn()){
              String query = "SELECT * FROM Sucursal where id = ?";
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -86,50 +85,92 @@ public class Gestor {
                 int id = rs.getInt("Id");
                 int horaApertura = rs.getInt("HoraApertura");
                 int horaCierre = rs.getInt("HoraCierre");
-                boolean estado = rs.getBoolean("Estado");
+                Estado estado = rs.getBoolean("Estado")? Estado.OPERATIVA : Estado.NO_OPERATIVA;
                 sucursal = new Sucursal(id,horaApertura,horaCierre,estado,nombre);;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (idBusqueda != 0) showModificarSucursal(jFrame,sucursal);
-    }
-    private void showModificarSucursal(JFrame jFrame, Sucursal s) {
-            swingestor.modificarSucursal(jFrame,s);
-            if(s.getFlagBorrado()) {
-                borrarSucursal(s);
-            }else{
-                if (s.isModificada()) {
-                    modificarSucursal(s);
+
+        if (idBusqueda != 0) {
+            swingestor.modificarSucursal(jFrame, sucursal);
+            if (sucursal.getFlagBorrado()) {
+                borrarSucursal(sucursal);
+            } else {
+                if (sucursal.isModificada()) {
+                    modificarSucursal(sucursal);
                 }
             }
-    }
-    public void borrarSucursal(Sucursal s){
-        try (Connection conn = Conexion.getInstance().getConn()) {
-                String query = "DELETE FROM Sucursal where id = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setInt(1,s.getId());
-                stmt.executeUpdate();
-            }catch (SQLException e) {
-                throw new RuntimeException(e);
         }
     }
-    public void modificarSucursal(Sucursal s){
-        s.Modificada();
+    public static void listarSucursales(JFrame jFrame) {
+            swingestor.listarSucursales(jFrame);
+    }
+    public static void cargarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores) {
+
         try (Connection conn = Conexion.getInstance().getConn()) {
-             String query = "UPDATE Sucursal SET Nombre = ?, HoraApertura = ?,HoraCierre = ?,Estado = ? WHERE Id = ?";
-             PreparedStatement stmt = conn.prepareStatement(query);
-             stmt.setString(1, s.getNombre());
-             stmt.setInt(2, s.getHoraApertura());
-             stmt.setInt(3, s.getHoraCierre());
-             stmt.setBoolean(4, s.getEstado());
-             stmt.setInt(5, s.getId());
-             stmt.executeUpdate();
-        }catch (SQLException e) {
+            StringJoiner columnasJoiner = new StringJoiner(", ");
+            StringJoiner valoresJoiner = new StringJoiner(", ");
+            for (int i = 0; i < cantValores; i++) {
+                columnasJoiner.add(columnas.get(i));
+                valoresJoiner.add("?");
+            }
+            String query = "INSERT INTO " + tabla + " (" + columnasJoiner.toString() + ") VALUES (" + valoresJoiner.toString() + ")";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+                for (int i = 0; i < cantValores; i++) {
+                    if (valores.get(i) instanceof String) {
+                        preparedStatement.setString(i + 1, (String) valores.get(i));
+                    } else if (valores.get(i) instanceof Integer) {
+                        preparedStatement.setInt(i + 1, (int) valores.get(i));
+                    } else if (valores.get(i) instanceof Double) {
+                        preparedStatement.setDouble(i + 1, (double) valores.get(i));
+                    } else if (valores.get(i) instanceof Estado) {
+                        preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
+                    }
+                }
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void eliminarFila(String tabla, String primary_key, int id) {
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            String query = "DELETE FROM "+ tabla + " WHERE " + primary_key + " = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public void showSucursales(JFrame jFrame) {
-            swingestor.listarSucursales(jFrame);
+
+    public static void actualizarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores, String primaryKey, int id) {
+
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            StringJoiner columnasJoiner = new StringJoiner(", ");
+            for (int i = 0; i < cantValores; i++) {
+                columnasJoiner.add(columnas.get(i) + " = ?");
+            }
+            String query = "UPDATE " + tabla + " SET " + columnasJoiner.toString() + " WHERE " + primaryKey + " = ?;";
+            try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+                for (int i = 0; i < cantValores; i++) {
+                    if (valores.get(i) instanceof String) {
+                        preparedStatement.setString(i + 1, (String) valores.get(i));
+                    } else if (valores.get(i) instanceof Integer) {
+                        preparedStatement.setInt(i + 1, (int) valores.get(i));
+                    } else if (valores.get(i) instanceof Double) {
+                        preparedStatement.setDouble(i + 1, (double) valores.get(i));
+                    } else if (valores.get(i) instanceof Estado) {
+                        preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
+                    }
+                }
+                preparedStatement.setObject(cantValores + 1, id);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

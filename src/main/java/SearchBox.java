@@ -34,12 +34,8 @@ public class SearchBox {
         JButton borrar = new JButton("borrar");
         borrar.addActionListener(e -> {
             int selectedRow = result.getSelectedRow();
-            new Gestor().borrarSucursal(new Sucursal((int)result.getValueAt(selectedRow, 0),
-                    (int)result.getValueAt(selectedRow, 1),
-                    (int)result.getValueAt(selectedRow, 2),
-                    (boolean)result.getValueAt(selectedRow, 3)?Estado.OPERATIVA:Estado.NO_OPERATIVA,
-                    (String)result.getValueAt(selectedRow, 4)
-                    ));
+            //Gestor.borrarSucursal(id_sucursal);
+            Gestor.borrarSucursal((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
             future.complete(null);
         });
         panel.add(modificar);

@@ -1,25 +1,30 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class Sucursal {
+    private boolean flagBorrado=false;
+    private boolean modificada=false;
+    private static String nombreTabla = "sucursal";
+    private static String primaryKey = "id";
+    private static final int CANTIDAD_COLUMNAS = 5;
+    private static ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "horaApertura", "horaCierre", "estado"));
+    private int id;
     private String nombre;
     private int horaApertura;
     private int horaCierre;
     private Estado estado;
-    private int id;
-    private boolean flagBorrado=false;
-    private boolean modificada=false;
-    public List<String> getListaColumnas(){
-        List<String> columnas=new ArrayList<>();
-        columnas.add("id");
-        columnas.add("nombre");
-        columnas.add("horaApertura");
-        columnas.add("horaCierre");
-        columnas.add("estado");
+
+    public static String getPrimaryKey(){
+        return primaryKey;
+    }
+    public static String getNombreTabla() {
+        return nombreTabla;
+    }
+    public static List<String> getNombresColumnas(){
         return columnas;
     }
-    public List<Object> getListaValores(){
+    public List<Object> getValores(){
         List<Object> valores = new ArrayList<>();
         valores.add(this.id);
         valores.add(this.nombre);
@@ -28,8 +33,8 @@ public class Sucursal {
         valores.add(this.estado);
         return valores;
     }
-    public int elementos() {
-        return 5;
+    public static int getCantidadDeColumnas() {
+        return CANTIDAD_COLUMNAS;
     }
     public Sucursal() {
     }
