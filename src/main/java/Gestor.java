@@ -51,35 +51,11 @@ public class Gestor {
             }
             return max;
         }
-    public static void agregarSucursal() {
-            Sucursal nuevaSucursal = swingestor.addSucursal( contadorSucursales + 1);
-            if(nuevaSucursal.isModificada())Gestor.cargarEnTable(Sucursal.getNombreTabla(),Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), nuevaSucursal.getValores());
-            contadorSucursales++;
-        }
-    public static void borrarSucursal(Sucursal sucursal){
-            Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),sucursal.getId());
-        }
     public static void borrarSucursal(int id_sucursal){
             Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
         }
     public static void buscarSucursal(){
-            int idBusqueda;
-            idBusqueda = swingestor.menuBusqueda();
-            if(idBusqueda<0){
-                agregarSucursal();
-            }else{
-                Sucursal sucursal =(Sucursal) datosFilaPorId("sucursal",idBusqueda);
-                if (idBusqueda != 0) {
-                    swingestor.modificarSucursal(sucursal);
-                    if (sucursal.getFlagBorrado()) {
-                        borrarSucursal(sucursal);
-                    } else {
-                        if (sucursal.isModificada()) {
-                            Gestor.actualizarEnTable(Sucursal.getNombreTabla(), Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores(), Sucursal.getPrimaryKey(), sucursal.getId());
-                        }
-                    }
-                }
-            }
+             swingestor.menuBusqueda();
         }
     public static void cargarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores) {
 

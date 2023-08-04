@@ -15,40 +15,44 @@ public class SearchBox {
     private JButton agregarSucursal = new JButton("agregar");
 
 
-    public int buscador(JFrame jFrame) throws HeadlessException {
-        final int[] id = new int[1];
+    public void buscador(JFrame jFrame) throws HeadlessException {
         addComponents(jFrame);
         setTable();
         CompletableFuture<Void> future = new CompletableFuture<>();
         JLabel actualizado = new JLabel("actualizado correctamente");
         JButton modificar = new JButton("modificar");
-
+        JLabel aviso = new JLabel("ingrese todos los valores correctamente");
         modificar.addActionListener(e -> {
             agregarSucursal.setText("agregar");
+            panel.remove(aviso);
             int selectedRow = result.getSelectedRow();
             if (selectedRow != -1) {
                 Sucursal sucursal= getSucursalFromLine(selectedRow);
                 Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
+                buscarTodo();
                 panel.add(actualizado);
-                actualizarFrame(jFrame,panel);
             }
+            actualizarFrame(jFrame,panel);
         });
         JButton cancelar =new JButton("cancelar");
         cancelar.addActionListener(e ->  {
-            id[0]=0;
             future.complete((null));
         });
         JButton borrar = new JButton("borrar");
         borrar.addActionListener(e -> {
             agregarSucursal.setText("agregar");
+            panel.remove(actualizado);
+            panel.remove(aviso);
+            actualizarFrame(jFrame,panel);
             int selectedRow = result.getSelectedRow();
             Gestor.borrarSucursal((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
-            result.setModel(DbUtils.resultSetToTableModel(
-                    new DataBase().search("", panel)));
+            buscarTodo();
         });
         agregarSucursal.addActionListener(e -> {
             if (agregarSucursal.getText().equals("agregar")) {
                 agregarSucursal.setText("guardar");
+                panel.remove(actualizado);
+                actualizarFrame(jFrame,panel);
                 DefaultTableModel model = (DefaultTableModel) result.getModel();
                 Vector<Object> emptyRow = new Vector<>();
                 emptyRow.add(Gestor.getLastValue("id", "sucursal") + 1);
@@ -57,25 +61,28 @@ public class SearchBox {
                 }
                 model.addRow(emptyRow);
             }else {
-                agregarSucursal.setText("agregar");
                 int lastRow = result.getRowCount() - 1;
                 Sucursal sucursal= getSucursalFromLine(lastRow);
-                Gestor.cargarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores());
+                if(sucursal.tieneValores()) {
+                    agregarSucursal.setText("agregar");
+                    Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
+                }else {
+                    panel.add(aviso);
+                    actualizarFrame(jFrame,panel);
+                }
             }
         });
         panel.add(agregarSucursal);
         panel.add(modificar);
         panel.add(borrar);
         panel.add(cancelar);
-        result.setModel(DbUtils.resultSetToTableModel(
-                new DataBase().search("", panel)));
+        buscarTodo();
         jFrame.setVisible(true);
         try {
             future.get();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return id[0];
     }
     public void actualizarFrame(JFrame jFrame,JPanel jPanel){
         jFrame.getContentPane().removeAll();
@@ -104,7 +111,10 @@ public class SearchBox {
                     new DataBase().search(searchable.getText(), panel)));
         });
     }
-
+    public void buscarTodo(){
+        result.setModel(DbUtils.resultSetToTableModel(
+                new DataBase().search("", panel)));
+    }
     /*public void listar(JFrame jFrame) {
         jFrame.getContentPane().removeAll();
         jFrame.revalidate();
@@ -134,10 +144,16 @@ public class SearchBox {
         sucursal.setId( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"))); // 0 is the column index for the ID column
         sucursal.setNombre((String) result.getValueAt(selectedRow,result.getColumnModel().getColumnIndex("nombre")));
         Object horaAperturaObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horaapertura"));
-        int horaApertura = Integer.parseInt(horaAperturaObj.toString());
+        int horaApertura = 0;
+        if(!horaAperturaObj.toString().equals("") && !horaAperturaObj.toString().equals(null)){
+            horaApertura = Integer.parseInt(horaAperturaObj.toString());
+        }
         sucursal.setHoraApertura(horaApertura);
         Object horaCierreObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horacierre"));
-        int horaCierre = Integer.parseInt(horaCierreObj.toString());
+        int horaCierre = 0;
+        if(!horaCierreObj.toString().equals("") && !horaCierreObj.toString().equals(null)){
+            horaCierre = Integer.parseInt(horaAperturaObj.toString());
+        }
         sucursal.setHoraCierre(horaCierre);
         Object estadoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("estado"));
         boolean estado = Boolean.parseBoolean(estadoObj.toString());

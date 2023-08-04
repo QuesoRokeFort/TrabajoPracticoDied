@@ -14,7 +14,7 @@ public class Swingestor {
         this.jFrame = jFrame;
     }
 
-    public Sucursal addSucursal(int id){
+    /*public Sucursal addSucursal(int id){
         System.out.println("here");
         Sucursal s= new Sucursal();
         s.setId(id);
@@ -83,7 +83,7 @@ public class Swingestor {
             ex.printStackTrace();
         }
         return s;
-    }
+    }*/
     public void actualizarFrame(JPanel jPanel){
         jFrame.getContentPane().removeAll();
         jFrame.revalidate();
@@ -92,7 +92,7 @@ public class Swingestor {
         jFrame.setSize(550, 600);
         jFrame.setVisible(true);
     }
-    public void modificarSucursal(Sucursal s) {
+    /*public void modificarSucursal(Sucursal s) {
         JPanel jpanel = new JPanel();
         JLabel labelId = new JLabel("Id: "+s.getId());
         JLabel labelHoraApertura = new JLabel("Hora de apertura: "+s.getHoraApertura());
@@ -146,7 +146,7 @@ public class Swingestor {
         }catch (Exception ex){
             ex.printStackTrace();
         }
-    }
+    }*/
     public Swingestor() {
     }
     public int swingMenuListaBotones(int cantidadOpciones, List<String>listaOpciones){
@@ -154,7 +154,7 @@ public class Swingestor {
         JPanel jPanel = new JPanel();
         CompletableFuture<Void> future= new CompletableFuture<>();
         for (int i=1;i<cantidadOpciones+1;i++){
-            JButton bt= new JButton(i+"- "+listaOpciones.get(i));
+            JButton bt= new JButton(i+"- "+listaOpciones.get(i-1));
             jPanel.add(bt);
             int finalI = i;
             bt.addActionListener(new ActionListener() {
@@ -230,9 +230,8 @@ public class Swingestor {
         }
         return opcion[0];
     }*/
-    public int menuBusqueda(){
+    public void menuBusqueda(){
         SearchBox SearchBox = new SearchBox();
-        int id = SearchBox.buscador(jFrame);
-        return id;
+        SearchBox.buscador(jFrame);
     }
 }
