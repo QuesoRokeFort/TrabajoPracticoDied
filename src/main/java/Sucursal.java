@@ -3,12 +3,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Sucursal extends Persistente{
+    private static final ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "horaApertura", "horaCierre", "estado"));
+    private static final int CANTIDAD_COLUMNAS = columnas.size();
+    private static final String nombreTabla = "sucursal";
+    private static final String primaryKey = "id";
     private boolean flagBorrado=false;
     private boolean modificada=false;
-    private static String nombreTabla = "sucursal";
-    private static String primaryKey = "id";
-    private static int CANTIDAD_COLUMNAS = 5;
-    private static ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "nombre", "horaApertura", "horaCierre", "estado"));
     private int id;
     private String nombre;
     private int horaApertura;
@@ -51,13 +51,15 @@ public class Sucursal extends Persistente{
         this.horaCierre = horaCierre;
         this.estado = estado;
     }
-
+    public boolean tieneValores(){
+        Integer Iid = (Integer) id;
+        Integer Iha = (Integer) horaApertura;
+        Integer Ihc = (Integer) horaCierre;
+        if ( Iid != null && this.nombre != null && !this.nombre.equals("") && Iha != null && Iha!=0 && Ihc != null && Ihc!=0  && this.estado != null)return true;
+        return false;
+    }
     public boolean isModificada() {
         return modificada;
-    }
-
-    public void Modificada() {
-        this.modificada = !this.modificada;
     }
 
     public int getId() {
