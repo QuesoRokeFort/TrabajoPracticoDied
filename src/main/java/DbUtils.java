@@ -34,8 +34,14 @@ public class DbUtils {
 
                 rows.addElement(newRow);
             }
+            TableModel model = new DefaultTableModel(rows, columnNames) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column != 0; // Cambia el número 0 si la columna de ID no está en la primera posición
+                }
+            };
 
-            return new DefaultTableModel(rows, columnNames);
+            return model;
         } catch (Exception e) {
             e.printStackTrace();
 
@@ -53,7 +59,7 @@ class DataBase {
         Connection connection = null;
         try {
             connection = getConnection();
-            String qry = "select * from sucursal" + (searchFor.equals("")? "" :" where id = ? or nombre = ? "+ "order by id");
+            String qry = "select * from sucursal" + (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
             statement = connection.prepareStatement(qry);
             if (searchFor.matches("\\d+")) {
                 statement.setInt(1, Integer.parseInt(searchFor)); // Configurando el valor para el primer marcador de posición
