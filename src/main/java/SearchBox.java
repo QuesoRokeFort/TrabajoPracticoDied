@@ -32,8 +32,8 @@ public class SearchBox {
                     Gestor.actulizarSucursal(sucursal);
                 }else{
                     if(tabla.equals("producto")){
-                        Producto producto= (Producto) Gestor.datosFilaPorId(tabla,(int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"));
-                        Gestor.actulizarProducto(producto);
+                        Producto producto= (Producto) Gestor.datosFilaPorId(tabla,(int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
+                       // Gestor.actulizarProducto(producto);
                     }
                 }
 
@@ -54,7 +54,7 @@ public class SearchBox {
             actualizarFrame(jFrame,panel);
             int selectedRow = result.getSelectedRow();
             Gestor.borrarSucursal((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
-            buscarTodo();
+            buscarTodo(tabla);
         });
         agregarSucursal.addActionListener(e -> {
             if (agregarSucursal.getText().equals("agregar")) {
@@ -84,7 +84,7 @@ public class SearchBox {
         panel.add(modificar);
         panel.add(borrar);
         panel.add(cancelar);
-        buscarTodo();
+        buscarTodo(tabla);
         jFrame.setVisible(true);
         try {
             future.get();
