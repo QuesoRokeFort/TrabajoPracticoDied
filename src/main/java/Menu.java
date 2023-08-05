@@ -11,10 +11,9 @@ public class Menu {
             caso = Gestor.swingestor.swingMenuListaBotones(2, List.of(new String[]{"Sucursal", "Producto","buscarSucursal"}));
             switch (caso) {
                 case 1:
-                    Gestor.buscarSucursal();
+                    Gestor.buscarSucursal("sucursal");
                     break;
                 case 2:
-
                     break;
                 case 3:
                     break;

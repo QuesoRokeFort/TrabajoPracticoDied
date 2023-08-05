@@ -13,23 +13,31 @@ public class SearchBox {
     private JScrollPane scrollPane = new JScrollPane(result);
 
     private JButton agregarSucursal = new JButton("agregar");
+    JLabel aviso = new JLabel("ingrese todos los valores correctamente");
 
-
-    public void buscador(JFrame jFrame) throws HeadlessException {
+    public void buscador(JFrame jFrame,String tabla) throws HeadlessException {
         addComponents(jFrame);
-        setTable();
+        setTable(jFrame, tabla);
         CompletableFuture<Void> future = new CompletableFuture<>();
         JLabel actualizado = new JLabel("actualizado correctamente");
         JButton modificar = new JButton("modificar");
-        JLabel aviso = new JLabel("ingrese todos los valores correctamente");
         modificar.addActionListener(e -> {
             agregarSucursal.setText("agregar");
             panel.remove(aviso);
             int selectedRow = result.getSelectedRow();
             if (selectedRow != -1) {
-                Sucursal sucursal= getSucursalFromLine(selectedRow);
-                Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
-                buscarTodo();
+                if (tabla.equals("sucursal")) {
+
+                    Sucursal sucursal= (Sucursal) Gestor.datosFilaPorId(tabla,(int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
+                    Gestor.actulizarSucursal(sucursal);
+                }else{
+                    if(tabla.equals("producto")){
+                        Producto producto= (Producto) Gestor.datosFilaPorId(tabla,(int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"));
+                        Gestor.actulizarProducto(producto);
+                    }
+                }
+
+                buscarTodo(tabla);
                 panel.add(actualizado);
             }
             actualizarFrame(jFrame,panel);
@@ -57,7 +65,7 @@ public class SearchBox {
                 Vector<Object> emptyRow = new Vector<>();
                 emptyRow.add(Gestor.getLastValue("id", "sucursal") + 1);
                 for (int i = 1; i < model.getColumnCount(); i++) {
-                    emptyRow.add(""); // Agregar una celda vacía para cada columna
+                    emptyRow.add("");
                 }
                 model.addRow(emptyRow);
             }else {
@@ -65,7 +73,7 @@ public class SearchBox {
                 Sucursal sucursal= getSucursalFromLine(lastRow);
                 if(sucursal.tieneValores()) {
                     agregarSucursal.setText("agregar");
-                    Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
+                    Gestor.cargarSucursal(sucursal);
                 }else {
                     panel.add(aviso);
                     actualizarFrame(jFrame,panel);
@@ -104,16 +112,18 @@ public class SearchBox {
         jFrame.setSize(550, 600);
         jFrame.setVisible(true);
     }
-    private void setTable() {
+    private void setTable(JFrame jFrame,String tabla) {
         searchB.addActionListener(e -> {
             agregarSucursal.setText("agregar");
+            panel.remove(aviso);
+            actualizarFrame(jFrame,panel);
             result.setModel(DbUtils.resultSetToTableModel(
-                    new DataBase().search(searchable.getText(), panel)));
+                    new DataBase().search(searchable.getText(), panel,tabla)));
         });
     }
-    public void buscarTodo(){
+    public void buscarTodo(String tabla){
         result.setModel(DbUtils.resultSetToTableModel(
-                new DataBase().search("", panel)));
+                new DataBase().search("", panel,tabla)));
     }
     /*public void listar(JFrame jFrame) {
         jFrame.getContentPane().removeAll();

@@ -228,8 +228,8 @@ public class Swingestor {
         }
         return opcion[0];
     }*/
-    public void menuBusqueda(){
+    public void menuBusqueda(String tabla){
         SearchBox SearchBox = new SearchBox();
-        SearchBox.buscador(jFrame);
+        SearchBox.buscador(jFrame,tabla);
     }
 }

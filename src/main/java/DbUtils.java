@@ -54,12 +54,12 @@ class DataBase {
         return Conexion.getInstance().getConn();
     }
 
-    ResultSet search(String searchFor, JPanel panel) {
+    ResultSet search(String searchFor, JPanel panel,String tabla) {
         PreparedStatement statement;
         Connection connection = null;
         try {
             connection = getConnection();
-            String qry = "select * from sucursal" + (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
+            String qry = "select * from "+ tabla + (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
             statement = connection.prepareStatement(qry);
             if (searchFor.matches("\\d+")) {
                 statement.setInt(1, Integer.parseInt(searchFor)); // Configurando el valor para el primer marcador de posición

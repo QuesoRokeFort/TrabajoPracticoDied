@@ -54,9 +54,17 @@ public class Gestor {
     public static void borrarSucursal(int id_sucursal){
             Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
         }
-    public static void buscarSucursal(){
-             swingestor.menuBusqueda();
+    public static void actulizarSucursal(Sucursal sucursal){
+        Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
+    }
+    public static void cargarSucursal(Sucursal sucursal){
+        Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
+    }
+
+    public static void buscarSucursal(String tabla){
+             swingestor.menuBusqueda(tabla);
         }
+
     public static void cargarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores) {
 
             try (Connection conn = Conexion.getInstance().getConn()) {
@@ -96,7 +104,6 @@ public class Gestor {
             throw new RuntimeException(e);
         }
     }
-
     public static void actualizarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores, String primaryKey, int id) {
 
             try (Connection conn = Conexion.getInstance().getConn()) {
@@ -124,6 +131,7 @@ public class Gestor {
                 e.printStackTrace();
             }
         }
+
     public static Object datosFilaPorId(String tabla, int idBusqueda) {
         try (Connection conn = Conexion.getInstance().getConn()) {
             String query = "SELECT * FROM "+ tabla +" where id = ?";
