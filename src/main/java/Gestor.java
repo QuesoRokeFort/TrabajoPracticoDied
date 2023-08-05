@@ -51,16 +51,12 @@ public class Gestor {
             }
             return max;
         }
-    public static void borrarSucursal(int id_sucursal){
-            Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
-        }
+    public static void actulizarProducto(Producto producto) {
+        Gestor.actualizarEnTable("producto",Producto.getCantidadDeColumnas(),Producto.getNombresColumnas(),producto.getValores(),Producto.getPrimaryKey(),producto.getId());
+    }
     public static void actulizarSucursal(Sucursal sucursal){
         Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
     }
-    public static void cargarSucursal(Sucursal sucursal){
-        Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
-    }
-
     public static void buscarSucursal(String tabla){
              swingestor.menuBusqueda(tabla);
         }
@@ -78,10 +74,13 @@ public class Gestor {
             try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
                 for (int i = 0; i < cantValores; i++) {
                     if (valores.get(i) instanceof String) {
+                        System.out.println("here");
+                        System.out.println((String) valores.get(i));
                         preparedStatement.setString(i + 1, (String) valores.get(i));
                     } else if (valores.get(i) instanceof Integer) {
                         preparedStatement.setInt(i + 1, (int) valores.get(i));
                     } else if (valores.get(i) instanceof Double) {
+                        System.out.println("here");
                         preparedStatement.setDouble(i + 1, (double) valores.get(i));
                     } else if (valores.get(i) instanceof Estado) {
                         preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
@@ -104,6 +103,7 @@ public class Gestor {
             throw new RuntimeException(e);
         }
     }
+
     public static void actualizarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores, String primaryKey, int id) {
 
             try (Connection conn = Conexion.getInstance().getConn()) {
@@ -131,7 +131,6 @@ public class Gestor {
                 e.printStackTrace();
             }
         }
-
     public static Object datosFilaPorId(String tabla, int idBusqueda) {
         try (Connection conn = Conexion.getInstance().getConn()) {
             String query = "SELECT * FROM "+ tabla +" where id = ?";
@@ -140,21 +139,69 @@ public class Gestor {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 if(tabla.equals("sucursal") ||tabla.equals("Sucursal")) {
-                    Sucursal sucursal= new Sucursal();
                     String nombre = rs.getString("Nombre");
                     int id = rs.getInt("Id");
                     int horaApertura = rs.getInt("HoraApertura");
                     int horaCierre = rs.getInt("HoraCierre");
                     Estado estado = rs.getBoolean("Estado") ? Estado.OPERATIVA : Estado.NO_OPERATIVA;
-                    sucursal = new Sucursal(id, horaApertura, horaCierre, estado, nombre);
-                    return sucursal;
+                     return new Sucursal(id, horaApertura, horaCierre, estado, nombre);
+
+                }else{
+                    if(tabla.equals("producto") ||tabla.equals("Producto")) {
+                        String nombre = rs.getString("nombre");
+                        int id = rs.getInt("id");
+                        String descripcion = rs.getString("descripcion");
+                        Double precioUnitario = rs.getDouble("preciounitario");
+                        Double pesoKg = rs.getDouble("pesokg");
+                        return new Producto(id,nombre,descripcion,precioUnitario,pesoKg);
+                    }
                 }
-                //espandir
+                //expandir
             }
         } catch (
                 SQLException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void actulizarStock(Stock stock) {
+       // Gestor.actualizarEnTable("stock",Stock.getCantidadDeColumnas(),Stock.getNombresColumnas(),stock.getValores(),Stock.getPrimaryKey(),stock.getId());
+    }
+
+    public static void actualizarCamino(Camino camino) {
+        Gestor.actualizarEnTable("camino",Camino.getCantidadDeColumnas(),Camino.getNombresColumnas(),camino.getValores(),Camino.getPrimaryKey(),camino.getId());
+    }
+
+    public static void borrarSucursal(int id_sucursal){
+        Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
+    }
+
+    public static void borrarProducto(int id) {
+        Gestor.eliminarFila("producto",Producto.getPrimaryKey(),id);
+    }
+
+    public static void borrarStock(int id) {
+        Gestor.eliminarFila("stock",Stock.getPrimaryKey(),id);
+    }
+
+    public static void borrarCamino(int id) {
+        Gestor.eliminarFila("camino",Producto.getPrimaryKey(),id);
+    }
+
+    public static void cargarSucursal(Sucursal sucursal){
+        Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
+    }
+
+    public static void cargarProducto(Producto producto) {
+        Gestor.cargarEnTable("producto", Producto.getCantidadDeColumnas(), Producto.getNombresColumnas(), producto.getValores());
+    }
+
+    public static void cargarStock(Stock stock) {
+        Gestor.cargarEnTable("stock", Stock.getCantidadDeColumnas(), Stock.getNombresColumnas(), stock.getValores());
+    }
+
+    public static void cargarCamino(Camino camino) {
+        Gestor.cargarEnTable("camino", Camino.getCantidadDeColumnas(), Camino.getNombresColumnas(), camino.getValores());
     }
 }

@@ -52,11 +52,7 @@ public class Sucursal extends Persistente{
         this.estado = estado;
     }
     public boolean tieneValores(){
-        Integer Iid = (Integer) id;
-        Integer Iha = (Integer) horaApertura;
-        Integer Ihc = (Integer) horaCierre;
-        if ( Iid != null && this.nombre != null && !this.nombre.equals("") && Iha != null && Iha!=0 && Ihc != null && Ihc!=0  && this.estado != null)return true;
-        return false;
+        return (id != 0 && nombre != null && horaApertura != 0 && horaCierre != 0 && estado != null);
     }
     public boolean isModificada() {
         return modificada;

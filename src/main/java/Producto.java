@@ -12,16 +12,25 @@ public class Producto extends Persistente {
     int id;
     String nombre;
     String descripcion;
-    double precioUnitario;
-    double pesoKg;
+    Double precioUnitario;
+    Double pesoKg;
 
     public Producto() {
     }
-
+    public static List<String> getNombresColumnas(){
+        return columnas;
+    }
+    public static int getCantidadDeColumnas() {
+        return CANTIDAD_COLUMNAS;
+    }
     @Override
     public List<Object> getValores() {
         List<Object> valores = new ArrayList<>();
         valores.add(this.id);
+        valores.add(this.nombre);
+        valores.add(this.descripcion);
+        valores.add(this.precioUnitario);
+        valores.add(this.pesoKg);
         return valores;
     }
 
@@ -32,7 +41,9 @@ public class Producto extends Persistente {
         this.precioUnitario = precioUnitario;
         this.pesoKg = pesoKg;
     }
-
+    public boolean tieneValores(){
+        return (id != 0 && nombre != null && descripcion != null && precioUnitario != 0.0 && pesoKg != 0.0);
+    }
     public int getId() {
         return id;
     }
@@ -57,19 +68,19 @@ public class Producto extends Persistente {
         this.descripcion = descripcion;
     }
 
-    public double getPrecioUnitario() {
+    public Double getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(double precioUnitario) {
+    public void setPrecioUnitario(Double precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 
-    public double getPesoKg() {
+    public Double getPesoKg() {
         return pesoKg;
     }
 
-    public void setPesoKg(double pesoKg) {
+    public void setPesoKg(Double pesoKg) {
         this.pesoKg = pesoKg;
     }
 }

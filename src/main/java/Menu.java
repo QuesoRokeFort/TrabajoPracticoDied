@@ -8,16 +8,19 @@ public class Menu {
         Gestor.inicializar(jFrame);
         int caso = 1;
         while (caso != 0) {
+            String tabla = new String();
             caso = Gestor.swingestor.swingMenuListaBotones(2, List.of(new String[]{"Sucursal", "Producto","buscarSucursal"}));
             switch (caso) {
                 case 1:
-                    Gestor.buscarSucursal("sucursal");
+                    tabla= "sucursal";
                     break;
                 case 2:
+                    tabla="producto";
                     break;
                 case 3:
                     break;
             }
+            if (caso!=0) Gestor.buscarSucursal(tabla);
         }
         jFrame.dispose();
     }
