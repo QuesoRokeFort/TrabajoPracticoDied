@@ -2,6 +2,8 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,13 +35,14 @@ public class SearchBox {
                 }else{
                     if(tabla.equals("producto")){
                         Producto producto= getProductoFromLine(selectedRow);
-                        System.out.println(producto.getDescripcion());
-                        System.out.println(producto.getNombre());
                         Gestor.actulizarProducto(producto);
                     }else{
                         if (tabla.equals("stock")){
                             Stock stock = getStockFromLine(selectedRow);
-                            Gestor.actulizarStock(stock);
+                            List<Integer> ids= new ArrayList<>();
+                            ids.add(getIntFromBlock(selectedRow,"id_producto"));
+                            ids.add(getIntFromBlock(selectedRow,"id_sucursal"));
+                            Gestor.actulizarStock(stock,ids);
                         }else {
                             if (tabla.equals("camino")){
                                 Camino camino = getCaminoFromLine(selectedRow);
@@ -71,7 +74,7 @@ public class SearchBox {
                     Gestor.borrarProducto((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
                 }else{
                     if (tabla.equals("stock")){
-                        Gestor.borrarStock((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
+                        Gestor.borrarStock((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id_producto")),(int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id_sucursal")));
                     }else {
                         if (tabla.equals("camino")){
                             Gestor.borrarCamino((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
@@ -88,7 +91,7 @@ public class SearchBox {
                 actualizarFrame(jFrame,panel);
                 DefaultTableModel model = (DefaultTableModel) result.getModel();
                 Vector<Object> emptyRow = new Vector<>();
-                emptyRow.add(Gestor.getLastValue("id", tabla) + 1);
+                if(Gestor.tieneId(tabla))emptyRow.add(Gestor.getLastValue("id", tabla) + 1);
                 for (int i = 1; i < model.getColumnCount(); i++) {
                     emptyRow.add("");
                 }
@@ -217,21 +220,9 @@ public class SearchBox {
         Sucursal sucursal= new Sucursal();
         sucursal.setId( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"))); // 0 is the column index for the ID column
         sucursal.setNombre((String) result.getValueAt(selectedRow,result.getColumnModel().getColumnIndex("nombre")));
-        Object horaAperturaObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horaapertura"));
-        int horaApertura = 0;
-        if(!horaAperturaObj.toString().equals("") && !horaAperturaObj.toString().equals(null)){
-            horaApertura = Integer.parseInt(horaAperturaObj.toString());
-        }
-        sucursal.setHoraApertura(horaApertura);
-        Object horaCierreObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horacierre"));
-        int horaCierre = 0;
-        if(!horaCierreObj.toString().equals("") && !horaCierreObj.toString().equals(null)){
-            horaCierre = Integer.parseInt(horaAperturaObj.toString());
-        }
-        sucursal.setHoraCierre(horaCierre);
-        Object estadoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("estado"));
-        boolean estado = Boolean.parseBoolean(estadoObj.toString());
-        sucursal.setEstado(estado ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
+        sucursal.setHoraApertura(getIntFromBlock(selectedRow,"horaapertura"));
+        sucursal.setHoraCierre(getIntFromBlock(selectedRow,"horacierre"));
+        sucursal.setEstado(getBoolFromBlock(selectedRow,"estado") ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
         return sucursal;
     }
     private Producto getProductoFromLine(int selectedRow) {
@@ -239,51 +230,46 @@ public class SearchBox {
         producto.setId( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"))); // 0 is the column index for the ID column
         producto.setNombre((String) result.getValueAt(selectedRow,result.getColumnModel().getColumnIndex("nombre")));
         producto.setDescripcion((String)result.getValueAt(selectedRow,result.getColumnModel().getColumnIndex("descripcion")));
-        Object precioUnitarioObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("preciounitario"));
-        double preciounitario = 0;
-        if(!precioUnitarioObj.toString().equals("") && !precioUnitarioObj.toString().equals(null)){
-            preciounitario = Double.parseDouble(precioUnitarioObj.toString());
-        }
-        producto.setPrecioUnitario(preciounitario);
-        Object pesoKgObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("pesokg"));
-        double pesoKg = 0;
-        if(!pesoKgObj.toString().equals("") && !pesoKgObj.toString().equals(null)){
-            pesoKg = Double.parseDouble(pesoKgObj.toString());
-        }
-        producto.setPesoKg(pesoKg);
+        producto.setPrecioUnitario(getDoubleFromBlock(selectedRow,"preciounitario"));
+        producto.setPesoKg(getDoubleFromBlock(selectedRow,"pesokg"));
         return producto;
     }
     private Stock getStockFromLine(int selectedRow) {
         Stock stock = new Stock();
-        stock.setCantidad( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("cantidad")));
-        stock.setId_producto( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id_producto")));
-        stock.setId_sucursal( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id_sucursal")));
+        stock.setCantidad( getIntFromBlock(selectedRow,"cantidad"));
+        stock.setId_producto( getIntFromBlock(selectedRow,"id_producto"));
+        stock.setId_sucursal( getIntFromBlock(selectedRow,"id_sucursal"));
         return stock;
+    }
+    private double getDoubleFromBlock(int selectedRow,String columna){
+        Object pesoKgObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex(columna));
+        double valor = 0;
+        if(!pesoKgObj.toString().equals("") && !pesoKgObj.toString().equals(null)){
+            valor = Double.parseDouble(pesoKgObj.toString());
+        }
+        return valor;
+    }
+    private int getIntFromBlock(int selectedRow,String columna){
+        Object intObt = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex(columna));
+        int valor = 0;
+        if(!intObt.toString().equals("") && !intObt.toString().equals(null)){
+            valor = Integer.parseInt(intObt.toString());
+        }
+        return valor;
+    }
+    private boolean getBoolFromBlock(int selectedRow,String columna){
+        Object estadoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex(columna));
+        boolean estado = Boolean.parseBoolean(estadoObj.toString());
+        return estado;
     }
     private Camino getCaminoFromLine(int selectedRow) {
         Camino camino = new Camino();
-        Object idSucursalDestinoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("idsucursaldestino"));
-        int idsucursaldestino = 0;
-        if(!idSucursalDestinoObj.toString().equals("") && !idSucursalDestinoObj.toString().equals(null)){
-            idsucursaldestino = Integer.parseInt(idSucursalDestinoObj.toString());
-        }
-        camino.setIdSucursalDestino(idsucursaldestino);
-        Object idSucursalOrigenObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("idsucursalorigen"));
-        int idSucursalOrigen = 0;
-        if(!idSucursalOrigenObj.toString().equals("") && !idSucursalOrigenObj.toString().equals(null)){
-            idSucursalOrigen = Integer.parseInt(idSucursalOrigenObj.toString());
-        }
-        camino.setIdSucursalOrigen(idSucursalOrigen);
+        camino.setIdSucursalDestino(getIntFromBlock(selectedRow,"idsucursaldestino"));
+        camino.setIdSucursalOrigen(getIntFromBlock(selectedRow,"idsucursalorigen"));
         camino.setId( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
-        Object capacidadMaximaObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("capacidadmaxima"));
-        int capacidadmaxima = 0;
-        if(!capacidadMaximaObj.toString().equals("") && !capacidadMaximaObj.toString().equals(null)){
-            capacidadmaxima = Integer.parseInt(capacidadMaximaObj.toString());
-        }
-        camino.setCapacidadMaxima(capacidadmaxima);
-        Object estadoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("estado"));
-        boolean estado = Boolean.parseBoolean(estadoObj.toString());
-        camino.setEstado(estado ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
+        camino.setTiempoDeViaje(getIntFromBlock(selectedRow,"tiempodeviaje"));
+        camino.setCapacidadMaxima(getIntFromBlock(selectedRow,"capacidadmaxima"));
+        camino.setEstado(getBoolFromBlock(selectedRow,"estado") ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
         return camino;
     }
 }

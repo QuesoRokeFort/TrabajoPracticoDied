@@ -9,7 +9,16 @@ public class Gestor {
     static Swingestor swingestor = new Swingestor();
 
 
-
+    public static boolean tieneId(String tabla){
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            String tieneId = "select id from " + tabla;
+            PreparedStatement preparedStatementid = conn.prepareStatement(tieneId);
+            preparedStatementid.executeQuery();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
     static int contadorSucursales;
     /*public void actualizarSucursales(){
             ArrayList<Sucursal> listaSucursales = new ArrayList<>();
@@ -52,10 +61,14 @@ public class Gestor {
             return max;
         }
     public static void actulizarProducto(Producto producto) {
-        Gestor.actualizarEnTable("producto",Producto.getCantidadDeColumnas(),Producto.getNombresColumnas(),producto.getValores(),Producto.getPrimaryKey(),producto.getId());
+        List<Integer> ids= new ArrayList<>();
+        ids.add(producto.getId());
+        Gestor.actualizarEnTable("producto",Producto.getCantidadDeColumnas(),Producto.getNombresColumnas(),producto.getValores(),Producto.getPrimaryKey(),ids);
     }
     public static void actulizarSucursal(Sucursal sucursal){
-        Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
+        List<Integer> ids= new ArrayList<>();
+        ids.add(sucursal.getId());
+        Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),ids);
     }
     public static void buscarSucursal(String tabla){
              swingestor.menuBusqueda(tabla);
@@ -74,13 +87,10 @@ public class Gestor {
             try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
                 for (int i = 0; i < cantValores; i++) {
                     if (valores.get(i) instanceof String) {
-                        System.out.println("here");
-                        System.out.println((String) valores.get(i));
                         preparedStatement.setString(i + 1, (String) valores.get(i));
                     } else if (valores.get(i) instanceof Integer) {
                         preparedStatement.setInt(i + 1, (int) valores.get(i));
                     } else if (valores.get(i) instanceof Double) {
-                        System.out.println("here");
                         preparedStatement.setDouble(i + 1, (double) valores.get(i));
                     } else if (valores.get(i) instanceof Estado) {
                         preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
@@ -93,18 +103,20 @@ public class Gestor {
         }
     }
 
-    public static void eliminarFila(String tabla, String primary_key, int id) {
+    public static void eliminarFila(String tabla, String primary_key, List<Integer> ids) {
         try (Connection conn = Conexion.getInstance().getConn()) {
             String query = "DELETE FROM "+ tabla + " WHERE " + primary_key + " = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, id);
+            for (int i=0; i<ids.size();i++) {
+                stmt.setInt(i + 1, ids.get(i));
+            }
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void actualizarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores, String primaryKey, int id) {
+    public static void actualizarEnTable(String tabla, int cantValores, List<String> columnas, List<Object> valores, String primaryKey,List<Integer> primaryKeys) {
 
             try (Connection conn = Conexion.getInstance().getConn()) {
                 StringJoiner columnasJoiner = new StringJoiner(", ");
@@ -113,7 +125,8 @@ public class Gestor {
                 }
                 String query = "UPDATE " + tabla + " SET " + columnasJoiner.toString() + " WHERE " + primaryKey + " = ?;";
                 try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-                    for (int i = 0; i < cantValores; i++) {
+                    int i = 0;
+                    for (; i < cantValores; i++) {
                         if (valores.get(i) instanceof String) {
                             preparedStatement.setString(i + 1, (String) valores.get(i));
                         } else if (valores.get(i) instanceof Integer) {
@@ -124,7 +137,11 @@ public class Gestor {
                             preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
                         }
                     }
-                    preparedStatement.setObject(cantValores + 1, id);
+                    int techo=i+primaryKeys.size();
+                    for (int j=0; i<techo;j++) {
+                        preparedStatement.setInt(i + 1, primaryKeys.get(j));
+                        i++;
+                    }
                     preparedStatement.executeUpdate();
                 }
             } catch (SQLException e) {
@@ -165,28 +182,39 @@ public class Gestor {
         return null;
     }
 
-    public static void actulizarStock(Stock stock) {
-       // Gestor.actualizarEnTable("stock",Stock.getCantidadDeColumnas(),Stock.getNombresColumnas(),stock.getValores(),Stock.getPrimaryKey(),stock.getId());
+    public static void actulizarStock(Stock stock, List<Integer> ids) {
+       Gestor.actualizarEnTable("stock",Stock.getCantidadDeColumnas(),Stock.getNombresColumnas(),stock.getValores(),Stock.getPrimaryKey(),ids);
     }
 
     public static void actualizarCamino(Camino camino) {
-        Gestor.actualizarEnTable("camino",Camino.getCantidadDeColumnas(),Camino.getNombresColumnas(),camino.getValores(),Camino.getPrimaryKey(),camino.getId());
+        List<Integer> ids= new ArrayList<>();
+        ids.add(camino.getId());
+        Gestor.actualizarEnTable("camino",Camino.getCantidadDeColumnas(),Camino.getNombresColumnas(),camino.getValores(),Camino.getPrimaryKey(),ids);
     }
 
     public static void borrarSucursal(int id_sucursal){
-        Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),id_sucursal);
+        List<Integer> ids= new ArrayList<>();
+        ids.add(id_sucursal);
+        Gestor.eliminarFila(Sucursal.getNombreTabla(),Sucursal.getPrimaryKey(),ids);
     }
 
     public static void borrarProducto(int id) {
-        Gestor.eliminarFila("producto",Producto.getPrimaryKey(),id);
+        List<Integer> ids= new ArrayList<>();
+        ids.add(id);
+        Gestor.eliminarFila("producto",Producto.getPrimaryKey(),ids);
     }
 
-    public static void borrarStock(int id) {
-        Gestor.eliminarFila("stock",Stock.getPrimaryKey(),id);
+    public static void borrarStock(int idsucursal, int idproducto) {
+        List<Integer> ids= new ArrayList<>();
+        ids.add(idsucursal);
+        ids.add(idproducto);
+        Gestor.eliminarFila("stock",Stock.getPrimaryKey(),ids);
     }
 
     public static void borrarCamino(int id) {
-        Gestor.eliminarFila("camino",Producto.getPrimaryKey(),id);
+        List<Integer> ids= new ArrayList<>();
+        ids.add(id);
+        Gestor.eliminarFila("camino",Producto.getPrimaryKey(),ids);
     }
 
     public static void cargarSucursal(Sucursal sucursal){

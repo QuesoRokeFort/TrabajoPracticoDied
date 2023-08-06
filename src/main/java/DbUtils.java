@@ -34,10 +34,14 @@ public class DbUtils {
 
                 rows.addElement(newRow);
             }
+            boolean tieneid = Gestor.tieneId(metaData.getTableName(1));
             TableModel model = new DefaultTableModel(rows, columnNames) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column != 0; // Cambia el número 0 si la columna de ID no está en la primera posición
+                    if (!tieneid) {
+                        return column != 0 && column != 1;
+                    }
+                    return column != 0;
                 }
             };
 
@@ -56,15 +60,32 @@ class DataBase {
 
     ResultSet search(String searchFor, JPanel panel,String tabla) {
         PreparedStatement statement;
+        boolean tieneid=false;
+        if (Gestor.tieneId(tabla)) tieneid = true;
         Connection connection = null;
         try {
             connection = getConnection();
-            String qry = "select * from "+ tabla + (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
+            String qry = "select * from "+ tabla;
+            if (tieneid){
+                qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
+            }else{
+                if(tabla.equals("stock"))qry+= (searchFor.equals("")? "":" where id_producto = ? or id_sucursal = ?");
+                if (tabla.equals("camino"))qry+= qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? "+ "ORDER BY id ASC");
+            }
             statement = connection.prepareStatement(qry);
             if (searchFor.matches("\\d+")) {
-                statement.setInt(1, Integer.parseInt(searchFor)); // Configurando el valor para el primer marcador de posición
-                statement.setString(2, searchFor); // Dejando el segundo marcador de posición en blanco
-            } else if(!searchFor.equals("")){
+                if (tieneid) {
+                    statement.setInt(1, Integer.parseInt(searchFor)); // Configurando el valor para el primer marcador de posición
+                    statement.setString(2, searchFor); // Dejando el segundo marcador de posición en blanco
+                }else{
+                    if(tabla.equals("stock")) {
+                        statement.setInt(1, Integer.parseInt(searchFor));
+                        statement.setInt(2, Integer.parseInt(searchFor));
+                    }else{
+                        statement.setInt(1, Integer.parseInt(searchFor));
+                    }
+                }
+            } else if(!searchFor.equals("") && tieneid){
                 statement.setInt(1, 0); // Dejando el primer marcador de posición en blanco
                 statement.setString(2, searchFor); // Configurando el valor para el segundo marcador de posición
             }

@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Camino extends Persistente {
-    private static final ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "origen", "destino", "tiempoDeViaje", "capacidadMaxima", "estado"));
+    private static final ArrayList<String> columnas = new ArrayList<>(Arrays.asList("id", "idSucursalOrigen", "idSucursalDestino", "tiempoDeViaje", "capacidadMaxima", "estado"));
     private static final int CANTIDAD_COLUMNAS = columnas.size();
     private static final String nombreTabla = "camino";
     private static final String primaryKey = "id";
@@ -13,6 +13,18 @@ public class Camino extends Persistente {
     private int tiempoDeViaje;
     private int capacidadMaxima;
     private Estado estado;
+    public static String getNombreTabla() {
+        return nombreTabla;
+    }
+    public static String getPrimaryKey(){
+        return primaryKey;
+    }
+    public static List<String> getNombresColumnas(){
+        return columnas;
+    }
+    public static int getCantidadDeColumnas() {
+        return CANTIDAD_COLUMNAS;
+    }
 
     public List<Object> getValores(){
         List<Object> valores = new ArrayList<>();
