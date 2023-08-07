@@ -1,6 +1,8 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -238,21 +240,12 @@ public class Swingestor {
         JButton button=new JButton("ta");
         JButton refrescar = new JButton("refrescar");
         CompletableFuture<Void> future = new CompletableFuture<>();
-        final ImageIcon[] imageIcon = {new ImageIcon("src/test/resources/graph.png")};
         JPanel panel =new JPanel();
-        final JLabel[] label = {new JLabel(imageIcon[0])};
+        final JLabel[] label = {new JLabel(new ImageIcon(loadImage("src/test/resources/graph.png")))};
         button.addActionListener(e -> {
                 future.complete(null);
         });
         refrescar.addActionListener(e -> {
-            panel.remove(label[0]);
-
-            File file = new File("src/test/resources/graph.png");
-            boolean deleted = file.delete();
-            if (!deleted) {
-                System.err.println("Failed to delete old image file.");
-            }
-
             try {
                 GestorTest.createGraph();
                 System.out.println("New image created.");
@@ -261,15 +254,17 @@ public class Swingestor {
             }
 
             System.out.println("Loading new image...");
-            ImageIcon imageIcon2 = new ImageIcon("src/test/resources/graph.png");
+            ImageIcon imageIcon2 = new ImageIcon(loadImage("src/test/resources/graph.png"));
             System.out.println("New image loaded.");
-
+            panel.removeAll();
             SwingUtilities.invokeLater(() -> {
                 JLabel newlabel = new JLabel(imageIcon2);
                 panel.add(newlabel);
+                panel.add(refrescar);
+                panel.add(button);
+                actualizarFrame(panel);
                 panel.revalidate();
                 panel.repaint();
-                // actualizarFrame(panel);  // You might not need this line
             });
         });
 
@@ -282,5 +277,14 @@ public class Swingestor {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    private static BufferedImage loadImage(String imagePath) {
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(new File(imagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 }

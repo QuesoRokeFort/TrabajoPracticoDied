@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,12 @@ public class Gestor {
     }
     public static void inicializar(JFrame jFrame) {
         contadorSucursales = Gestor.getLastValue("id","sucursal");
+        jFrame.pack();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - jFrame.getWidth()) / 3;
+        int y = (screenSize.height - jFrame.getHeight()) / 4;
+        jFrame.setLocation(x, y);
+        jFrame.setVisible(true);
         swingestor.setjFrame(jFrame);
     }
     public static int getLastValue(String nombreColumna, String tabla) {
