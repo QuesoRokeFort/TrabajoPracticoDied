@@ -1,5 +1,7 @@
 import javax.swing.*;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Menu {
     public static void main(String[] args)  {
@@ -9,7 +11,7 @@ public class Menu {
         int caso = 1;
         while (caso != 0) {
             String tabla = new String();
-            caso = Gestor.swingestor.swingMenuListaBotones(4, List.of(new String[]{"Sucursal", "Producto","Stock","camino"}));
+            caso = Gestor.swingestor.swingMenuListaBotones(5, List.of(new String[]{"Sucursal", "Producto","Stock","camino","grafo"}));
             switch (caso) {
                 case 1:
                     tabla= "sucursal";
@@ -23,8 +25,11 @@ public class Menu {
                 case 4:
                     tabla="camino";
                     break;
+                case 5:
+                    Gestor.swingestor.menuGrafo();
+                    break;
             }
-            if (caso!=0) Gestor.buscarSucursal(tabla);
+            if (caso!=0 && caso !=5) Gestor.buscarSucursal(tabla);
         }
         jFrame.dispose();
     }

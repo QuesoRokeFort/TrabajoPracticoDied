@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -231,5 +233,54 @@ public class Swingestor {
     public void menuBusqueda(String tabla){
         SearchBox SearchBox = new SearchBox();
         SearchBox.buscador(jFrame,tabla);
+    }
+    public void menuGrafo(){
+        JButton button=new JButton("ta");
+        JButton refrescar = new JButton("refrescar");
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        final ImageIcon[] imageIcon = {new ImageIcon("src/test/resources/graph.png")};
+        JPanel panel =new JPanel();
+        final JLabel[] label = {new JLabel(imageIcon[0])};
+        button.addActionListener(e -> {
+                future.complete(null);
+        });
+        refrescar.addActionListener(e -> {
+            panel.remove(label[0]);
+
+            File file = new File("src/test/resources/graph.png");
+            boolean deleted = file.delete();
+            if (!deleted) {
+                System.err.println("Failed to delete old image file.");
+            }
+
+            try {
+                GestorTest.createGraph();
+                System.out.println("New image created.");
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            System.out.println("Loading new image...");
+            ImageIcon imageIcon2 = new ImageIcon("src/test/resources/graph.png");
+            System.out.println("New image loaded.");
+
+            SwingUtilities.invokeLater(() -> {
+                JLabel newlabel = new JLabel(imageIcon2);
+                panel.add(newlabel);
+                panel.revalidate();
+                panel.repaint();
+                // actualizarFrame(panel);  // You might not need this line
+            });
+        });
+
+        panel.add(label[0]);
+        panel.add(refrescar);
+        panel.add(button);
+        actualizarFrame(panel);
+        try {
+            future.get();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

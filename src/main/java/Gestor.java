@@ -20,27 +20,46 @@ public class Gestor {
         }
     }
     static int contadorSucursales;
-    /*public void actualizarSucursales(){
-            ArrayList<Sucursal> listaSucursales = new ArrayList<>();
+    public static List<Object> buscarCosas(List<String> cosasABuscar, String tabla,String orden) {
+        ArrayList<Object> listaCosas = new ArrayList<>();
 
-            try (Connection conn = Conexion.getInstance().getConn();
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT * FROM Sucursal")) {
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            Statement stmt = conn.createStatement();
+            StringJoiner columnasJoiner = new StringJoiner(", ");
 
-                while (rs.next()) {
-                    String nombre = rs.getString("Nombre");
-                    int id = rs.getInt("Id");
-                    int horaApertura = rs.getInt("HoraApertura");
-                    int horaCierre = rs.getInt("HoraCierre");
-                    boolean estado = rs.getBoolean("Estado");
-                    Sucursal sucursal = new Sucursal(id,horaApertura,horaCierre,estado,nombre);;
-                    listaSucursales.add(sucursal);
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            for (int i = 0; i < cosasABuscar.size(); i++) {
+                columnasJoiner.add(cosasABuscar.get(i));
             }
-            this.sucursales=listaSucursales;
-    }*/
+
+            String query = "SELECT " + columnasJoiner + " FROM " + tabla;
+            if(!orden.equals(""))query+=" order by "+orden +" asc";
+            System.out.println(query);
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                if (tabla.equals("sucursal")) {
+                    if (cosasABuscar.stream().anyMatch(columna -> columna.equals("id"))) listaCosas.add(rs.getInt("id"));
+                    if (cosasABuscar.stream().anyMatch(columna -> columna.equals("nombre"))) listaCosas.add(rs.getString("nombre"));
+                    if (cosasABuscar.stream().anyMatch(columna -> columna.equals("horaApertura")))listaCosas.add(rs.getInt("horaApertura"));
+                    if (cosasABuscar.stream().anyMatch(columna -> columna.equals("horaCierre")))listaCosas.add(rs.getInt("horaCierre"));
+                    if (cosasABuscar.stream().anyMatch(columna -> columna.equals("estado")))listaCosas.add(rs.getBoolean("estado")?Estado.OPERATIVA : Estado.NO_OPERATIVA);
+                }else{
+                    if (tabla.equals("camino")){
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("id"))) listaCosas.add(rs.getInt("id"));
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("idSucursalOrigen"))) listaCosas.add(rs.getInt("idSucursalOrigen"));
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("idSucursalDestino"))) listaCosas.add(rs.getInt("idSucursalDestino"));
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("tiempoDeViaje"))) listaCosas.add(rs.getInt("tiempoDeViaje"));
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("capacidadMaxima"))) listaCosas.add(rs.getInt("capacidadMaxima"));
+                        if (cosasABuscar.stream().anyMatch(columna -> columna.equals("estado"))) listaCosas.add(rs.getBoolean("estado"));
+                    }
+                    //expandir
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return listaCosas;
+    }
     public static void inicializar(JFrame jFrame) {
         contadorSucursales = Gestor.getLastValue("id","sucursal");
         swingestor.setjFrame(jFrame);

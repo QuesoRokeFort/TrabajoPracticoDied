@@ -1,177 +1,79 @@
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.util.mxCellRenderer;
+import org.jgrapht.Graph;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-
-  import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.Vector;
-import java.util.concurrent.CompletableFuture;
 public class GestorTest {
-/*
-        private JTextField searchable = new JTextField(30);
-        private JButton searchB = new JButton("Search");
-        private JTable result = new JTable();
-        private JPanel panel = new JPanel();
-        private JScrollPane scrollPane = new JScrollPane(result);
+  public static void createGraph() throws IOException {
+    System.out.println("here");
+    File imgFile2 = new File("src/test/resources/graph.png");
+    imgFile2.createNewFile();
 
-        private JButton agregarSucursal = new JButton("agregar");
+    Graph<String, DefaultEdge> directedGraph =
+            new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+    List<String> cosas = new ArrayList<>();
+    cosas.add("id");
+    cosas.add("nombre");
+    List<Object> listaVerices = Gestor.buscarCosas(cosas,"sucursal","id");
+    String nombre="";
+    List<String> nombres= new ArrayList<>();
+    for(int i=1;i<listaVerices.size();i+=2) {
+        nombre=listaVerices.get(i-1)+"-"+listaVerices.get(i);
+        directedGraph.addVertex(nombre);
+        nombres.add(nombre);
+        System.out.println(nombre);
+    }
+    cosas = new ArrayList<>();
+    cosas.add("id");
+    cosas.add("idSucursalOrigen");
+    cosas.add("idSucursalDestino");
+    List<Object> listaCaminos= Gestor.buscarCosas(cosas,"camino","");
+    System.out.println(listaCaminos.toString());
+    for(int i=0;i<listaCaminos.size();i+=3) {
+      int finalI = i;
+      System.out.println(listaCaminos.get(finalI + 1).getClass());
+      Optional<String> firstFilteredNombre = nombres.stream()
+              .filter(n -> n.startsWith(String.valueOf(listaCaminos.get(finalI + 1))))
+              .findFirst();
+      Optional<String> firstFilteredNombre2 = nombres.stream()
+              .filter(n -> n.startsWith(String.valueOf(listaCaminos.get(finalI + 2))))
+              .findFirst();
+      directedGraph.addEdge(firstFilteredNombre.get(),firstFilteredNombre2.get());
+    }
+    givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist((DefaultDirectedGraph) directedGraph);
+  }
+    static void givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(DefaultDirectedGraph g) throws IOException {
+
+      JGraphXAdapter<String, DefaultEdge> graphAdapter =
+              new JGraphXAdapter<String, DefaultEdge>(g);
+      mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
+      layout.execute(graphAdapter.getDefaultParent());
+
+      BufferedImage image =
+              mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
+      File imgFile = new File("src/test/resources/graph.png");
+      ImageIO.write(image, "PNG", imgFile);
 
 
-        public void buscador(JFrame jFrame) throws HeadlessException {
-            addComponents(jFrame);
-            setTable();
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            JLabel actualizado = new JLabel("actualizado correctamente");
-            JButton modificar = new JButton("modificar");
-            JLabel aviso = new JLabel("ingrese todos los valores correctamente");
-            modificar.addActionListener(e -> {
-                agregarSucursal.setText("agregar");
-                panel.remove(aviso);
-                int selectedRow = result.getSelectedRow();
-                if (selectedRow != -1) {
-                    Sucursal sucursal= getSucursalFromLine(selectedRow);
-                    Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),sucursal.getId());
-                    buscarTodo();
-                    panel.add(actualizado);
-                }
-                actualizarFrame(jFrame,panel);
-            });
-            JButton cancelar =new JButton("cancelar");
-            cancelar.addActionListener(e ->  {
-                future.complete((null));
-            });
-            JButton borrar = new JButton("borrar");
-            borrar.addActionListener(e -> {
-                agregarSucursal.setText("agregar");
-                panel.remove(actualizado);
-                panel.remove(aviso);
-                actualizarFrame(jFrame,panel);
-                int selectedRow = result.getSelectedRow();
-                Gestor.borrarSucursal((int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id")));
-                buscarTodo();
-            });
-            agregarSucursal.addActionListener(e -> {
-                if (agregarSucursal.getText().equals("agregar")) {
-                    agregarSucursal.setText("guardar");
-                    panel.remove(actualizado);
-                    actualizarFrame(jFrame,panel);
-                    DefaultTableModel model = (DefaultTableModel) result.getModel();
-                    Vector<Object> emptyRow = new Vector<>();
-                    emptyRow.add(Gestor.getLastValue("id", "sucursal") + 1);
-                    for (int i = 1; i < model.getColumnCount(); i++) {
-                        emptyRow.add(""); // Agregar una celda vacía para cada columna
-                    }
-                    model.addRow(emptyRow);
-                }else {
-                    int lastRow = result.getRowCount() - 1;
-                    Sucursal sucursal= getSucursalFromLine(lastRow);
-                    if(sucursal.tieneValores()) {
-                        agregarSucursal.setText("agregar");
-                        Gestor.cargarEnTable("sucursal", Sucursal.getCantidadDeColumnas(), Sucursal.getNombresColumnas(), sucursal.getValores());
-                    }else {
-                        panel.add(aviso);
-                        actualizarFrame(jFrame,panel);
-                    }
-                }
-            });
-            panel.add(agregarSucursal);
-            panel.add(modificar);
-            panel.add(borrar);
-            panel.add(cancelar);
-            buscarTodo();
-            jFrame.setVisible(true);
-            try {
-                future.get();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        public void actualizarFrame(JFrame jFrame,JPanel jPanel){
-            jFrame.getContentPane().removeAll();
-            jFrame.revalidate();
-            jFrame.repaint();
-            jFrame.add(jPanel);
-            jFrame.setSize(550, 600);
-            jFrame.setVisible(true);
-        }
+      assertFileExists(imgFile);
+    }
 
-        private void addComponents(JFrame jFrame) {
-            jFrame.getContentPane().removeAll();
-            jFrame.revalidate();
-            jFrame.repaint();
-            panel.add(searchable);
-            panel.add(searchB);
-            panel.add(scrollPane);
-            jFrame.add(panel);
-            jFrame.setSize(550, 600);
-            jFrame.setVisible(true);
-        }
-        private void setTable() {
-            searchB.addActionListener(e -> {
-                agregarSucursal.setText("agregar");
-
-                result.setModel(DbUtils.resultSetToTableModel(
-                        new DataBase().search(searchable.getText(), panel)));
-            });
-        }
-        public void buscarTodo(){
-            result.setModel(DbUtils.resultSetToTableModel(
-                    new DataBase().search("", panel)));
-        }*/
-        /*public void listar(JFrame jFrame) {
-            jFrame.getContentPane().removeAll();
-            jFrame.revalidate();
-            jFrame.repaint();
-            setTable();
-            result.setModel(DbUtils.resultSetToTableModel(
-                    new DataBase().search("", panel)));
-            panel.add(scrollPane);
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            JButton cancelar =new JButton("cancelar");
-            cancelar.addActionListener(e ->  {
-                future.complete((null));
-            });
-            panel.add(cancelar);
-            jFrame.add(panel);
-            jFrame.setSize(600, 600);
-            jFrame.setVisible(true);
-            try {
-                future.get();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-        }
-        public Sucursal getSucursalFromLine(int selectedRow){
-            Sucursal sucursal= new Sucursal();
-            sucursal.setId( (int)result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("id"))); // 0 is the column index for the ID column
-            sucursal.setNombre((String) result.getValueAt(selectedRow,result.getColumnModel().getColumnIndex("nombre")));
-            Object horaAperturaObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horaapertura"));
-            int horaApertura = 0;
-            if(!horaAperturaObj.toString().equals("") && !horaAperturaObj.toString().equals(null)){
-                horaApertura = Integer.parseInt(horaAperturaObj.toString());
-            }
-            sucursal.setHoraApertura(horaApertura);
-            Object horaCierreObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("horacierre"));
-            int horaCierre = 0;
-            if(!horaCierreObj.toString().equals("") && !horaCierreObj.toString().equals(null)){
-                horaCierre = Integer.parseInt(horaAperturaObj.toString());
-            }
-            sucursal.setHoraCierre(horaCierre);
-            Object estadoObj = result.getValueAt(selectedRow, result.getColumnModel().getColumnIndex("estado"));
-            boolean estado = Boolean.parseBoolean(estadoObj.toString());
-            sucursal.setEstado(estado ? Estado.OPERATIVA : Estado.NO_OPERATIVA);
-            return sucursal;
-        }
-    }*/}
+  private static void assertFileExists(File file) {
+    if (!file.exists()) {
+      throw new AssertionError("File does not exist: " + file.getAbsolutePath());
+    }
+  }
+  }
