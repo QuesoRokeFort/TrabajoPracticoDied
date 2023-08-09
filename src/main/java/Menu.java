@@ -1,7 +1,5 @@
 import javax.swing.*;
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class Menu {
     public static void main(String[] args)  {
@@ -29,7 +27,7 @@ public class Menu {
                     Gestor.swingestor.menuGrafo();
                     break;
             }
-            if (caso!=0 && caso !=5) Gestor.buscarSucursal(tabla);
+            if (caso!=0 && caso !=5) Gestor.buscartabla(tabla);
         }
         jFrame.dispose();
     }

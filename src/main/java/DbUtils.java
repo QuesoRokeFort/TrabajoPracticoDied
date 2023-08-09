@@ -69,7 +69,7 @@ class DataBase {
             if (tieneid){
                 qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
             }else{
-                if(tabla.equals("stock"))qry+= (searchFor.equals("")? "":" where id_producto = ? or id_sucursal = ?");
+                if(tabla.equals("stock"))qry+= (searchFor.equals("")? "":" where id_sucursal = ?");
                 if (tabla.equals("camino"))qry+= qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? "+ "ORDER BY id ASC");
             }
             statement = connection.prepareStatement(qry);
@@ -80,7 +80,6 @@ class DataBase {
                 }else{
                     if(tabla.equals("stock")) {
                         statement.setInt(1, Integer.parseInt(searchFor));
-                        statement.setInt(2, Integer.parseInt(searchFor));
                     }else{
                         statement.setInt(1, Integer.parseInt(searchFor));
                     }
@@ -89,6 +88,7 @@ class DataBase {
                 statement.setInt(1, 0); // Dejando el primer marcador de posición en blanco
                 statement.setString(2, searchFor); // Configurando el valor para el segundo marcador de posición
             }
+            System.out.println(statement);
             return statement.executeQuery();
 
         } catch (SQLException e) {

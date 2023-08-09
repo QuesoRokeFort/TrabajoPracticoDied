@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -247,9 +248,11 @@ public class Swingestor {
         });
         refrescar.addActionListener(e -> {
             try {
-                GestorTest.createGraph();
+                Gestor.createGraph();
                 System.out.println("New image created.");
             } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
 

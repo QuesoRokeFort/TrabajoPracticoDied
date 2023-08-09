@@ -1,8 +1,21 @@
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.util.mxCellRenderer;
+import org.jgraph.graph.Edge;
+import org.jgrapht.Graph;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.graph.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 public class Gestor {
@@ -21,8 +34,9 @@ public class Gestor {
         }
     }
     static int contadorSucursales;
-    public static List<Object> buscarCosas(List<String> cosasABuscar, String tabla,String orden) {
+    public static ResultSet buscarCosas(List<String> cosasABuscar, String tabla,String orden) {
         ArrayList<Object> listaCosas = new ArrayList<>();
+
 
         try (Connection conn = Conexion.getInstance().getConn()) {
             Statement stmt = conn.createStatement();
@@ -34,10 +48,9 @@ public class Gestor {
 
             String query = "SELECT " + columnasJoiner + " FROM " + tabla;
             if(!orden.equals(""))query+=" order by "+orden +" asc";
-            System.out.println(query);
-            ResultSet rs = stmt.executeQuery(query);
+            return stmt.executeQuery(query);
 
-            while (rs.next()) {
+            /*while (rs.next()) {
                 if (tabla.equals("sucursal")) {
                     if (cosasABuscar.stream().anyMatch(columna -> columna.equals("id"))) listaCosas.add(rs.getInt("id"));
                     if (cosasABuscar.stream().anyMatch(columna -> columna.equals("nombre"))) listaCosas.add(rs.getString("nombre"));
@@ -55,11 +68,10 @@ public class Gestor {
                     }
                     //expandir
                 }
-            }
+            }*/
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return listaCosas;
     }
     public static void inicializar(JFrame jFrame) {
         contadorSucursales = Gestor.getLastValue("id","sucursal");
@@ -96,7 +108,7 @@ public class Gestor {
         ids.add(sucursal.getId());
         Gestor.actualizarEnTable("sucursal",Sucursal.getCantidadDeColumnas(),Sucursal.getNombresColumnas(),sucursal.getValores(),Sucursal.getPrimaryKey(),ids);
     }
-    public static void buscarSucursal(String tabla){
+    public static void buscartabla(String tabla){
              swingestor.menuBusqueda(tabla);
         }
 
@@ -258,4 +270,84 @@ public class Gestor {
     public static void cargarCamino(Camino camino) {
         Gestor.cargarEnTable("camino", Camino.getCantidadDeColumnas(), Camino.getNombresColumnas(), camino.getValores());
     }
+    public static Graph createGraph() throws IOException, SQLException {
+        File imgFile2 = new File("src/test/resources/graph.png");
+        imgFile2.createNewFile();
+
+        Graph<String, DefaultWeightedEdge> directedGraph =
+                new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class);
+
+        List<String> cosas = new ArrayList<>();
+        cosas.add("id");
+        cosas.add("nombre");
+        ResultSet listaVerices = Gestor.buscarCosas(cosas,"sucursal","id");
+        String nombre="";
+        List<String> nombres= new ArrayList<>();
+        while(listaVerices.next()){
+            try {
+                nombre = listaVerices.getInt("id") + "-" + listaVerices.getString("nombre");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            directedGraph.addVertex(nombre);
+            nombres.add(nombre);
+        }
+
+        cosas = new ArrayList<>();
+        cosas.add("id");
+        cosas.add("idSucursalOrigen");
+        cosas.add("idSucursalDestino");
+        cosas.add("tiempoDeViaje");
+        ResultSet listaCaminos = Gestor.buscarCosas(cosas,"camino","");
+        DefaultWeightedEdge x;
+        while(listaCaminos.next()){
+            Optional<String> firstFilteredNombre = nombres.stream()
+                    .filter(n -> {
+                        try {
+                            return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalOrigen")));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .findFirst();
+
+            Optional<String> firstFilteredNombre2 = nombres.stream()
+                    .filter(n -> {
+                        try {
+                            return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalDestino")));
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .findFirst();
+            directedGraph.addEdge(firstFilteredNombre.get(),firstFilteredNombre2.get());
+            directedGraph.setEdgeWeight(firstFilteredNombre.get(),firstFilteredNombre2.get(),listaCaminos.getInt("tiempoDeViaje"));
+            x = directedGraph.getEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
+        }
+        givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist((DefaultDirectedWeightedGraph) directedGraph);
+        return directedGraph;
+    }
+
+    static void givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(DefaultDirectedWeightedGraph g) throws IOException {
+        JGraphXAdapter<String, DefaultWeightedEdge> graphAdapter =
+                new JGraphXAdapter<String, DefaultWeightedEdge>(g);
+        mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
+        layout.execute(graphAdapter.getDefaultParent());
+
+        BufferedImage image =
+                mxCellRenderer.createBufferedImage(graphAdapter, null, 2, Color.WHITE, true, null);
+
+        File imgFile = new File("src/test/resources/graph.png");
+        ImageIO.write(image, "PNG", imgFile);
+
+        assertFileExists(imgFile);
+    }
+
+    private static void assertFileExists(File file) {
+        if (!file.exists()) {
+            throw new AssertionError("File does not exist: " + file.getAbsolutePath());
+        }
+    }
 }
+
+

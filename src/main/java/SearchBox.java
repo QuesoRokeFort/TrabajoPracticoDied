@@ -2,6 +2,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -143,8 +144,49 @@ public class SearchBox {
                 }
             }
         });
+        if (tabla.equals("sucursal")) {
+            JButton stock = new JButton("ver Stock");
+            stock.addActionListener(e -> {
+                int selectedRow = result.getSelectedRow();
+                if (selectedRow!=-1) {
+                    Sucursal s = getSucursalFromLine(selectedRow);
+                    panel.remove(aviso);
+                    panel.remove(agregar);
+                    panel.remove(modificar);
+                    panel.remove(borrar);
+                    panel.remove(stock);
+                    JButton ordendepedido = new JButton("orden de pedido");
+                    panel.add(ordendepedido);
+                    ordendepedido.addActionListener(e1 -> {
+                        try {
+                            GestorTest.ordenDeProvicion(jFrame,s);
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
+                    JButton atras = new JButton("atras");
+                    panel.add(atras);
+                    atras.addActionListener(e1 -> {
+                        panel.remove(atras);
+                        panel.add(stock);
+                        panel.add(agregar);
+                        panel.add(modificar);
+                        panel.add(borrar);
+                        panel.add(cancelar);
+                        buscarTodo(tabla);
+                        actualizarFrame(jFrame, panel);
+                    });
+                    actualizarFrame(jFrame, panel);
+                    result.setModel(DbUtils.resultSetToTableModel(
+                            new DataBase().search(String.valueOf(s.getId()), panel, "stock")));
+                }else{
+                }
+            });
+            panel.add(stock);
+        }
         panel.add(agregar);
         panel.add(modificar);
+
         panel.add(borrar);
         panel.add(cancelar);
         buscarTodo(tabla);
@@ -186,7 +228,6 @@ public class SearchBox {
                     new DataBase().search(searchable.getText(), panel,tabla)));
         });
     }
-
     public void buscarTodo(String tabla){
         result.setModel(DbUtils.resultSetToTableModel(
                 new DataBase().search("", panel,tabla)));
