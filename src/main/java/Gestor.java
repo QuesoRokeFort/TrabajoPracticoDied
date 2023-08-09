@@ -132,8 +132,11 @@ public class Gestor {
                         preparedStatement.setDouble(i + 1, (double) valores.get(i));
                     } else if (valores.get(i) instanceof Estado) {
                         preparedStatement.setBoolean(i + 1, valores.get(i).equals(Estado.OPERATIVA) ? true : false);
+                    }else if (valores.get(i) instanceof Boolean) {
+                        preparedStatement.setBoolean(i + 1, (Boolean)valores.get(i) ? true : false);
                     }
                 }
+                System.out.println(preparedStatement);
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
