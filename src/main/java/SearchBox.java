@@ -352,7 +352,7 @@ public class SearchBox {
         JButton agregar = new JButton("agregar");
         agregar.addActionListener(e -> {
             JComboBox<String> comboBox = new JComboBox<>(opciones);
-            JTextField textField = GestorTest.createPlaceholderTextField("Cantidad");
+            JTextField textField = Gestor.createPlaceholderTextField("Cantidad");
             jPanel.add(comboBox);
             jPanel.add(textField);
             jPanel.revalidate();

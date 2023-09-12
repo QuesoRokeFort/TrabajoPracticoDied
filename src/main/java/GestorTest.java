@@ -32,34 +32,4 @@ public class GestorTest {
         }
 
     }
-
-
-
-
-    public static JTextField createPlaceholderTextField(String placeholder) {
-        JTextField textField = new JTextField(15);
-        textField.setText(placeholder);
-        textField.setForeground(Color.GRAY);
-
-        // Agregar un FocusListener para cambiar el texto cuando se obtiene y pierde el enfoque
-        textField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (textField.getText().isEmpty()) {
-                    textField.setText(placeholder);
-                    textField.setForeground(Color.GRAY);
-                }
-            }
-        });
-
-        return textField;
-    }
 }

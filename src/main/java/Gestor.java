@@ -9,6 +9,8 @@ import org.jgrapht.graph.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -344,6 +346,32 @@ public class Gestor {
         ImageIO.write(image, "PNG", imgFile);
 
         assertFileExists(imgFile);
+    }
+    public static JTextField createPlaceholderTextField(String placeholder) {
+        JTextField textField = new JTextField(15);
+        textField.setText(placeholder);
+        textField.setForeground(Color.GRAY);
+
+        // Agregar un FocusListener para cambiar el texto cuando se obtiene y pierde el enfoque
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        });
+
+        return textField;
     }
 
     private static void assertFileExists(File file) {
