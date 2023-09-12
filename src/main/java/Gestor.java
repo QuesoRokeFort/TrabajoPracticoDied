@@ -275,7 +275,8 @@ public class Gestor {
     public static void cargarCamino(Camino camino) {
         Gestor.cargarEnTable("camino", Camino.getCantidadDeColumnas(), Camino.getNombresColumnas(), camino.getValores());
     }
-    public static Graph createGraph() throws IOException, SQLException {
+    public static List<Object> createGraph() throws IOException, SQLException {
+        List<Object> list = new ArrayList<>();
         File imgFile2 = new File("src/test/resources/graph.png");
         imgFile2.createNewFile();
 
@@ -303,8 +304,10 @@ public class Gestor {
         cosas.add("idSucursalOrigen");
         cosas.add("idSucursalDestino");
         cosas.add("tiempoDeViaje");
+        cosas.add("capacidadMaxima");
         ResultSet listaCaminos = Gestor.buscarCosas(cosas,"camino","");
         DefaultWeightedEdge x;
+        ArrayList<Integer> pesos = new ArrayList<Integer>();
         while(listaCaminos.next()){
             Optional<String> firstFilteredNombre = nombres.stream()
                     .filter(n -> {
@@ -328,9 +331,12 @@ public class Gestor {
             directedGraph.addEdge(firstFilteredNombre.get(),firstFilteredNombre2.get());
             directedGraph.setEdgeWeight(firstFilteredNombre.get(),firstFilteredNombre2.get(),listaCaminos.getInt("tiempoDeViaje"));
             x = directedGraph.getEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
+            pesos.add(listaCaminos.getInt("capacidadMaxima"));
         }
         givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist((DefaultDirectedWeightedGraph) directedGraph);
-        return directedGraph;
+        list.add(directedGraph);
+        list.add(pesos);
+        return list;
     }
 
     static void givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist(DefaultDirectedWeightedGraph g) throws IOException {

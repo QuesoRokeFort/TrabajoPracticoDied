@@ -18,17 +18,19 @@ import java.util.concurrent.ExecutionException;
 
 public class GestorTest {
     public static void main(String[] args) throws SQLException, IOException {
-        Graph newG = Gestor.createGraph();
-
+        List<Object> grafo = Gestor.createGraph();
+        Graph newG = (Graph) grafo.get(0);
         Set<DefaultWeightedEdge> edges = newG.edgeSet();
-
+        ArrayList<Integer> pesos = (ArrayList<Integer>) grafo.get(1);
+        int i=0;
         for (DefaultWeightedEdge edge : edges) {
             String sourceVertex = (String) newG.getEdgeSource(edge);
             String targetVertex = (String) newG.getEdgeTarget(edge);
             double edgeWeight = newG.getEdgeWeight(edge);
             //double edgeWeight = newG[1].getEdgeWeight(edge);
 
-            System.out.println("Arista: " + sourceVertex + " -> " + targetVertex + " | Peso: " + edgeWeight);
+            System.out.println("Arista: " + sourceVertex + " -> " + targetVertex + " | tiempo: " + edgeWeight +" | peso: "+ pesos.get(i)+" kg");
+        i++;
         }
 
     }
