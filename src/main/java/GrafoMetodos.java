@@ -4,32 +4,30 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import java.io.IOException;
 import java.lang.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
 
 class GrafoMetodos {
-    static final int CANTIDAD_SUCURSALES = 5; //ARREGLAR
-    Graph newG;
-    ArrayList<Integer> pesos;
-    Set<DefaultWeightedEdge> edges;
-    int idFuente;
-    String nombreSumidero = "Sink"; //ARREGLAR
+    Graph jGraph;
+    int CANTIDAD_SUCURSALES;
+    ArrayList<Integer> duracionRutas;
+    Set<DefaultWeightedEdge> aristas;
+    String nombreSumidero = "Sink"; //ARREGLAR (cuando arreglemos la bdd, poner sumidero como )
     String nombreFuente = "El Tunel"; //ARREGLAR
-    int idSumidero;
+    int idFuente = -1;
+    int idSumidero = -1;
     public GrafoMetodos(){
         try {
             List<Object> grafo = Gestor.createGraph();
-            newG = (Graph) grafo.get(0);
-            this.pesos = (ArrayList<Integer>) grafo.get(1);
-            this.edges = newG.edgeSet();
-            for (DefaultWeightedEdge edge : edges) {
-                String sourceVertex = (String) newG.getEdgeSource(edge);
-                String targetVertex = (String) newG.getEdgeTarget(edge);
+            jGraph = (Graph) grafo.get(0);
+            CANTIDAD_SUCURSALES = jGraph.vertexSet().size();
+            this.duracionRutas = (ArrayList<Integer>) grafo.get(1);
+            this.aristas = jGraph.edgeSet();
+            for (DefaultWeightedEdge edge : aristas) {
+                String sourceVertex = (String) jGraph.getEdgeSource(edge);
+                String targetVertex = (String) jGraph.getEdgeTarget(edge);
 
                 if (targetVertex.endsWith("-"+ nombreSumidero)) {
                     idSumidero = Integer.parseInt(targetVertex.split("-")[0]) - 1;
@@ -37,7 +35,7 @@ class GrafoMetodos {
                 if (sourceVertex.endsWith("-"+ nombreFuente)) {
                     idFuente = Integer.parseInt(sourceVertex.split("-")[0]) - 1;
                 }
-        }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
@@ -45,21 +43,83 @@ class GrafoMetodos {
         }
     }
     public int calcularFlujoMaximo(){
-        int[][] graph = new int[CANTIDAD_SUCURSALES][CANTIDAD_SUCURSALES];
-        for (DefaultWeightedEdge edge : this.edges) {
-            String sourceVertex = (String) newG.getEdgeSource(edge);
-            String targetVertex = (String) newG.getEdgeTarget(edge);
-            double edgeWeight = newG.getEdgeWeight(edge);
+        if (idFuente == -1 || idSumidero == -1) {
+            System.out.println("Asegurese de que haya sumidero o fuente");
+            return 0;
+        }
+        int[][] matrizDePesos = this.asMatrizPesos();
+        return flujoMaximo(matrizDePesos, idFuente, idSumidero);
+    }
+    public double[] calcularPageRanks(){
+        return this.pageRanks(this.asMatrizPesos());
+    }
 
-            // Los grafos estan etiquetados desde 1 hasta CANTIDAD_SUCURSALES
+    public int[][] asMatrizPesos(){
+        int[][] matriz = new int[CANTIDAD_SUCURSALES][CANTIDAD_SUCURSALES];
+
+        for (DefaultWeightedEdge edge : this.aristas) {
+            String sourceVertex = (String) jGraph.getEdgeSource(edge);
+            String targetVertex = (String) jGraph.getEdgeTarget(edge);
+            double edgeWeight = jGraph.getEdgeWeight(edge);
             int sourceId = Integer.parseInt(sourceVertex.split("-")[0]);
             int targetId = Integer.parseInt(targetVertex.split("-")[0]);
-
-            // Actualiza la matriz graph[][] con el peso de la arista
-            // Resta 1 a sourceId y targetId para que coincidan con los índices de la matriz (si los índices comienzan en 0)
-            graph[sourceId - 1][targetId - 1] = (int) edgeWeight;
+            matriz[sourceId - 1][targetId - 1] = (int) edgeWeight;
         }
-        return flujoMaximo(graph, idFuente, idSumidero);
+        return matriz;
+    }
+    public double[] pageRanks(int[][] matrizPesos) {
+        int n = matrizPesos.length;
+        double[] pageRank = new double[n];
+        double[] newPageRank = new double[n];
+
+        double dampingFactor = 0.85; // generalmente 0.85 en PageRank de Google
+
+        // Inicializa PageRank uniformemente
+        for (int i = 0; i < n; i++) {
+            pageRank[i] = 1.0 / n;
+        }
+
+        int maxIterations = 100; //
+        double tolerance = 1e-6; // Tolerancia para la convergencia (ajusta según sea necesario)
+
+        // Itera para calcular PageRank
+        for (int iter = 0; iter < maxIterations; iter++) {
+            double sum = 0.0;
+
+            // Calcular la suma de PageRank de los nodos que enlazan a este nodo
+            for (int i = 0; i < n; i++) {
+                double inboundRank = 0.0;
+                for (int j = 0; j < n; j++) {
+                    if (matrizPesos[j][i] > 0) {
+                        inboundRank += pageRank[j] / Arrays.stream(matrizPesos[j]).sum();
+                    }
+                }
+                newPageRank[i] = (1.0 - dampingFactor) / n + dampingFactor * inboundRank;
+                sum += newPageRank[i];
+            }
+
+            // Normalizar PageRank para que sume 1
+            for (int i = 0; i < n; i++) {
+                newPageRank[i] += (1.0 - sum) / n;
+            }
+
+            // Verificar convergencia
+            boolean converged = true;
+            for (int i = 0; i < n; i++) {
+                if (Math.abs(pageRank[i] - newPageRank[i]) > tolerance) {
+                    converged = false;
+                    break;
+                }
+            }
+
+            // Actualizar PageRank y salir si ha convergido
+            System.arraycopy(newPageRank, 0, pageRank, 0, n);
+            if (converged) {
+                break;
+            }
+        }
+
+        return pageRank;
     }
     private boolean BusquedaEnAnchura(int grafoResiduales[][], int fuente, int sumidero, int padre[]){
         boolean[] visitado = new boolean[CANTIDAD_SUCURSALES];
@@ -120,7 +180,10 @@ class GrafoMetodos {
     public static void main(String[] args)
             throws Exception{
         GrafoMetodos pato = new GrafoMetodos();
-        System.out.println(pato.calcularFlujoMaximo());
+        double[] pageRanks = pato.calcularPageRanks();
+        for (int i=0;i<pageRanks.length; i++){
+            System.out.print(pageRanks[i]+" ");
+        }
     }
     /*    public static void main(String[] args)
                 throws Exception {
