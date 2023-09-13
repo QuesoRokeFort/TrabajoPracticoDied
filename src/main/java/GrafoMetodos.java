@@ -47,7 +47,7 @@ class GrafoMetodos {
     public int calcularFlujoMaximo(){
         if (idFuente == -1 || idSumidero == -1) {
             System.out.println("PARA CALCULAR EL FLUJO MAXIMO DEBE HABER FUENTE Y SUMIDERO (Y deben estar nombrados correctamente)");
-            return 0;
+            return -1;
         }
         int[][] matrizPesos = this.asMatrizPesos();
         return flujoMaximo(matrizPesos);
@@ -197,8 +197,8 @@ class GrafoMetodos {
     }
     // Encuentra todos los caminos posibles entre origen y destino
 
-    // algoritmo de flujo maximo
-    private int flujoMaximo(int[][] pesosGrafo){
+    // algoritmo de flujo maximo (para mostrar los tests, se hizo publico)
+    public int flujoMaximo(int[][] pesosGrafo){
         int u, v;
         int[][] pesosResidualesGrafo = new int[CANTIDAD_SUCURSALES][CANTIDAD_SUCURSALES];
 
