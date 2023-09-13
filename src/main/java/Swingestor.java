@@ -270,10 +270,18 @@ public class Swingestor {
                 panel.repaint();
             });
         });
-
+        JButton jButton = new JButton("flujo Maximo");
+        jButton.addActionListener(e -> {
+            GrafoMetodos grafo = new GrafoMetodos();
+            Integer i = grafo.calcularFlujoMaximo();
+            JLabel textoFlujo = new JLabel(String.valueOf(i));
+            panel.add(textoFlujo);
+            actualizarFrame(panel);
+        });
         panel.add(label[0]);
         panel.add(refrescar);
         panel.add(button);
+        panel.add(jButton);
         actualizarFrame(panel);
         try {
             future.get();

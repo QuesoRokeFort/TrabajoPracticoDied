@@ -2,13 +2,12 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 
 public class SearchBox {
@@ -198,6 +197,99 @@ public class SearchBox {
 
         panel.add(borrar);
         panel.add(cancelar);
+        if(tabla.equals("ordenpedido")){
+            panel.remove(agregar);
+            panel.remove(modificar);
+            panel.remove(borrar);
+            actualizarFrame(jFrame,panel);
+            JButton verOrden = new JButton("ver pedido");
+            panel.add(verOrden);
+            verOrden.addActionListener(e -> {
+                panel.remove(verOrden);
+
+                int selectedRow = result.getSelectedRow();
+                int idpedido = getIntFromBlock(selectedRow,"id");
+                int idSucuralDestino = getIntFromBlock(selectedRow,"idsucursal");
+                JButton realizarPedido = new JButton("realizar pedido");
+                if (!getBoolFromBlock(selectedRow,"estado")){
+                    panel.add(realizarPedido);
+                    actualizarFrame(jFrame,panel);
+                }
+                realizarPedido.addActionListener(e1 -> {
+                    GrafoMetodos grafo = new GrafoMetodos();
+                    ResultSet resultado = Gestor.tirarQuery( "SELECT DISTINCT s.id_sucursal "+
+                            "FROM ordenpedido op "+
+                            "JOIN reglonpedido rp ON op.id = rp.idorden "+
+                            "LEFT JOIN stock s ON rp.idproducto = s.id_producto " +
+                            "WHERE op.id  = "+ idpedido + " "+
+                            "GROUP BY s.id_sucursal "+
+                            "HAVING COUNT(DISTINCT s.id_producto) = COUNT(DISTINCT rp.idproducto) " +
+                            "AND SUM(CASE WHEN s.cantidad >= rp.cantidad THEN 1 ELSE 0 END) = COUNT(DISTINCT rp.idproducto);");
+                    String Lcamino ="";
+                    try {
+                        while (resultado.next()) {
+                            int idSucursal = resultado.getInt("id_sucursal");
+                            List<List<Integer>> caminos = grafo.encontrarCaminos(idSucursal,idSucuralDestino);
+                            for (int i = 0; i < caminos.size(); i++) {
+                                List<Integer> camino = caminos.get(i);
+                                Lcamino+="Camino " + ": ";
+                                for (int j = 0; j < camino.size(); j++) {
+                                    Lcamino+=camino.get(j);
+                                    if (j < camino.size() - 1) {
+                                        Lcamino+=" -> ";
+                                    }
+                                }
+                                JButton opCam = new JButton(Lcamino);
+                                panel.add(opCam);
+                                opCam.addActionListener(e2 -> {
+                                    Gestor.tirarQuery("UPDATE ordenpedido " +
+                                            "SET estado = true " +
+                                            "WHERE id = "+idpedido );
+                                    panel.removeAll();
+                                    addComponents(jFrame);
+                                    panel.add(verOrden);
+                                    panel.add(cancelar);
+                                    buscarTodo(tabla);
+                                    actualizarFrame(jFrame, panel);
+                                   /* ResultSet cantAct =Gestor.buscarCosas(Collections.singletonList("cantidad"),"stock","");
+                                    try {
+                                        cantAct.getInt("cantidad");
+                                    } catch (SQLException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                    Gestor.tirarQuery("update Stock "+
+                                            "set cantidad = " )*/
+                                });
+                                Lcamino ="";
+                            }
+                            Lcamino ="";
+                            actualizarFrame(jFrame,panel);
+                        }
+                    } catch (SQLException e2) {
+                        e2.printStackTrace();
+                    }
+
+
+
+                    // UPDATE ordenpedido
+                    //SET estado = true
+                    //WHERE id = ?
+                });
+                JButton atras = new JButton("atras");
+                panel.add(atras);
+                actualizarFrame(jFrame,panel);
+                atras.addActionListener(e1 -> {
+                    panel.removeAll();
+                    addComponents(jFrame);
+                    panel.add(verOrden);
+                    panel.add(cancelar);
+                    buscarTodo(tabla);
+                    actualizarFrame(jFrame, panel);
+                });
+                result.setModel(DbUtils.resultSetToTableModel(
+                        new DataBase().search(String.valueOf(idpedido), panel, "reglonpedido")));
+            });
+        }
         buscarTodo(tabla);
         jFrame.setVisible(true);
         try {

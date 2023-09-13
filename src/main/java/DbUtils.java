@@ -69,6 +69,7 @@ class DataBase {
             if (tieneid){
                 qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? or nombre = ? "+ "ORDER BY id ASC");
             }else{
+                if(tabla.equals("reglonpedido"))qry+= (searchFor.equals("")? "":" where idorden = ?");
                 if(tabla.equals("stock"))qry+= (searchFor.equals("")? "":" where id_sucursal = ?");
                 if (tabla.equals("camino"))qry+= qry+= (searchFor.equals("")? " ORDER BY id ASC" :" where id = ? "+ "ORDER BY id ASC");
             }

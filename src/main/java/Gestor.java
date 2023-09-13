@@ -36,6 +36,24 @@ public class Gestor {
         }
     }
     static int contadorSucursales;
+    public static ResultSet tirarQuery(String query){
+        try (Connection conn = Conexion.getInstance().getConn()) {
+            Statement stmt = conn.createStatement();
+            System.out.println(query);
+            ResultSet resultSet = stmt.executeQuery(query);
+
+            // Verifica si el ResultSet está vacío y devuelve null si es así
+            if (!resultSet.isBeforeFirst()) {
+                return null;
+            }
+
+            return resultSet;
+        } catch (SQLException e) {
+            // Manejar la excepción aquí
+            e.printStackTrace();
+            return null;
+        }
+    }
     public static ResultSet buscarCosas(List<String> cosasABuscar, String tabla,String orden) {
         ArrayList<Object> listaCosas = new ArrayList<>();
 
@@ -276,6 +294,9 @@ public class Gestor {
         Gestor.cargarEnTable("camino", Camino.getCantidadDeColumnas(), Camino.getNombresColumnas(), camino.getValores());
     }
     public static List<Object> createGraph() throws IOException, SQLException {
+        return createGraph("");
+    }
+    public static List<Object> createGraph(String operativo) throws IOException, SQLException {
         List<Object> list = new ArrayList<>();
         File imgFile2 = new File("src/test/resources/graph.png");
         imgFile2.createNewFile();
@@ -305,33 +326,64 @@ public class Gestor {
         cosas.add("idSucursalDestino");
         cosas.add("tiempoDeViaje");
         cosas.add("capacidadMaxima");
+        if(!operativo.equals("")){
+            cosas.add("estado");
+        }
         ResultSet listaCaminos = Gestor.buscarCosas(cosas,"camino","");
         DefaultWeightedEdge x;
         ArrayList<Integer> pesos = new ArrayList<Integer>();
         while(listaCaminos.next()){
-            Optional<String> firstFilteredNombre = nombres.stream()
-                    .filter(n -> {
-                        try {
-                            return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalOrigen")));
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .findFirst();
+            if (operativo.equals("")){
+                Optional<String> firstFilteredNombre = nombres.stream()
+                        .filter(n -> {
+                            try {
+                                return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalOrigen")));
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .findFirst();
 
-            Optional<String> firstFilteredNombre2 = nombres.stream()
-                    .filter(n -> {
-                        try {
-                            return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalDestino")));
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .findFirst();
-            directedGraph.addEdge(firstFilteredNombre.get(),firstFilteredNombre2.get());
-            directedGraph.setEdgeWeight(firstFilteredNombre.get(),firstFilteredNombre2.get(),listaCaminos.getInt("tiempoDeViaje"));
-            x = directedGraph.getEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
-            pesos.add(listaCaminos.getInt("capacidadMaxima"));
+                Optional<String> firstFilteredNombre2 = nombres.stream()
+                        .filter(n -> {
+                            try {
+                                return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalDestino")));
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .findFirst();
+                directedGraph.addEdge(firstFilteredNombre.get(),firstFilteredNombre2.get());
+                directedGraph.setEdgeWeight(firstFilteredNombre.get(),firstFilteredNombre2.get(),listaCaminos.getInt("tiempoDeViaje"));
+                x = directedGraph.getEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
+                pesos.add(listaCaminos.getInt("capacidadMaxima"));
+            }else {
+                if (listaCaminos.getString("estado").equals("operativo")||listaCaminos.getString("estado").equals("true")) {
+                    Optional<String> firstFilteredNombre = nombres.stream()
+                            .filter(n -> {
+                                try {
+                                    return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalOrigen")));
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .findFirst();
+
+                    Optional<String> firstFilteredNombre2 = nombres.stream()
+                            .filter(n -> {
+                                try {
+                                    return n.startsWith(String.valueOf(listaCaminos.getInt("idSucursalDestino")));
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .findFirst();
+                    directedGraph.addEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
+                    directedGraph.setEdgeWeight(firstFilteredNombre.get(), firstFilteredNombre2.get(), listaCaminos.getInt("tiempoDeViaje"));
+                    x = directedGraph.getEdge(firstFilteredNombre.get(), firstFilteredNombre2.get());
+                    pesos.add(listaCaminos.getInt("capacidadMaxima"));
+                }
+            }
         }
         givenAdaptedGraph_whenWriteBufferedImage_thenFileShouldExist((DefaultDirectedWeightedGraph) directedGraph);
         list.add(directedGraph);

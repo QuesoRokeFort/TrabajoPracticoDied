@@ -243,7 +243,7 @@ class GrafoMetodos {
         System.out.println(pato.calcularFlujoMaximo());
 
         //ejemplo de uso de encontrarCaminos y como obtener los caminos!
-        List<List<Integer>> caminos = pato.encontrarCaminos(4,5);
+        List<List<Integer>> caminos = pato.encontrarCaminos(1,4);
         System.out.println("caminos: ");
         for (int i = 0; i < caminos.size(); i++) {
             List<Integer> camino = caminos.get(i);

@@ -10,7 +10,7 @@ public class Menu {
         int caso = 1;
         while (caso != 0) {
             String tabla = new String();
-            caso = Gestor.swingestor.swingMenuListaBotones(5, List.of(new String[]{"Sucursal", "Producto","Stock","camino","grafo"}));
+            caso = Gestor.swingestor.swingMenuListaBotones(6, List.of(new String[]{"Sucursal", "Producto","Stock","camino","grafo","pedidos"}));
             switch (caso) {
                 case 1:
                     tabla= "sucursal";
@@ -26,6 +26,9 @@ public class Menu {
                     break;
                 case 5:
                     Gestor.swingestor.menuGrafo();
+                    break;
+                case 6:
+                    tabla="ordenpedido";
                     break;
             }
             if (caso!=0 && caso !=5) Gestor.buscartabla(tabla);

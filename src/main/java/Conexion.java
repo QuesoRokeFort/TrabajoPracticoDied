@@ -24,7 +24,7 @@ public class Conexion {
     private void crearConexion(){
         String url = "jdbc:postgresql://localhost:5432/TPtest";
         String username = "postgres";
-        String password = "gengis100"; //gengis100/123219
+        String password = "123219"; //gengis100/123219
         try{
             Class.forName("org.postgresql.Driver");
             this.conn = DriverManager.getConnection(url,username,password);
