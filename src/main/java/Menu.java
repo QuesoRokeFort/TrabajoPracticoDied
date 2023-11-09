@@ -7,6 +7,7 @@ public class Menu {
         JFrame jFrame= new JFrame("trabajo practico");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Gestor.inicializar(jFrame);
+        //test
         int caso = 1;
         while (caso != 0) {
             String tabla = new String();
