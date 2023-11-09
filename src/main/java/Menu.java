@@ -10,7 +10,7 @@ public class Menu {
         //test
         int caso = 1;
         while (caso != 0) {
-            String tabla ;
+            String tabla =null;
             caso = Gestor.swingestor.swingMenuListaBotones(6, List.of(new String[]{"Sucursal", "Producto","Stock","camino","grafo","pedidos"}));
             switch (caso) {
                 case 1 -> tabla = "sucursal";
